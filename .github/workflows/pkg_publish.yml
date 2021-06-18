@@ -45,9 +45,9 @@ jobs:
       # build-svf
       - name: build-svf
         run: |
+          cd $GITHUB_WORKSPACE
           git stash --all
           echo $(pwd)
-          cd $GITHUB_WORKSPACE
           npm_version=`npm v svf-tools version`
           if [ "$RUNNER_OS" = "Linux" ]; then sed  -i '/version/s/[^:]*$/'"\"${npm_version}\",/" package.json  ; fi
           if [ "$RUNNER_OS" = "Linux" ]; then git add .    ; fi
