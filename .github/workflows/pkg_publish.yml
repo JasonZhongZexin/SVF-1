@@ -1,4 +1,4 @@
-name: svf-build
+name: svf-publish
 
 # Triggers the workflow on pushed to master ( merged ) 
 on: 
