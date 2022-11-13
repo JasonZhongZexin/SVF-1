@@ -199,16 +199,6 @@ void SymbolTableBuilder::buildMemModel(SVFModule* svfModule)
     }
 }
 
-/*!
-* Collect special sym here
-*/
-void SymbolTableBuilder::collectNullPtrBlackholeSyms(const Value *val)
-{
-    if (LLVMUtil::isBlackholeSym(val))
-        symInfo->getModule()->addBlackholeSyms(val);
-}
-
-
 void SymbolTableBuilder::collectSpecialSym(const Value* val)
 {
     if (LLVMUtil::isPtrInUncalledFunction(val))
@@ -258,12 +248,6 @@ void SymbolTableBuilder::collectSym(const Value *val)
  */
 void SymbolTableBuilder::collectVal(const Value *val)
 {
-    // collect and record special sym here
-    if (LLVMUtil::isNullPtrSym(val) || LLVMUtil::isBlackholeSym(val))
-    {
-        collectNullPtrBlackholeSyms(val);
-        return;
-    }
     SymbolTableInfo::ValueToIDMapTy::iterator iter = symInfo->valSymMap.find(val);
     if (iter == symInfo->valSymMap.end())
     {

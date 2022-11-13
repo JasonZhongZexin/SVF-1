@@ -54,10 +54,6 @@ public:
     /// Start building memory model
     void buildMemModel(SVFModule* svfModule);
 
-    /// collect the syms
-    //@{
-    void collectNullPtrBlackholeSyms(const Value* val);
-
     void collectSpecialSym(const Value* val);
 
     void collectSym(const Value* val);

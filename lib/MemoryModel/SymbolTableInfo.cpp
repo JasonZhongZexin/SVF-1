@@ -339,15 +339,6 @@ const Type* SymbolTableInfo::getPtrElementType(const PointerType* pty)
     return nullptr;
 }
 
-/*!
- * Check whether this value is blackhole object
- */
-bool SymbolTableInfo::isBlackholeSym(const Value* val)
-{
-    const Set<const Value*>  blackholeSyms = symInfo->getModule()->getBlackholeSyms();
-    return blackholeSyms.find(val)!= blackholeSyms.end();
-}
-
 
 
 MemObj* SymbolTableInfo::createBlkObj(SymID symId)
@@ -777,7 +768,7 @@ SymID SymbolTableInfo::getValSym(const Value* val)
 
     if(LLVMModuleSet::getLLVMModuleSet()->getSVFValue(val)->isNullPtr())
         return nullPtrSymID();
-    else if (SymbolTableInfo::isBlackholeSym(val))
+    else if (LLVMModuleSet::getLLVMModuleSet()->getSVFValue(val)->isblackHole())
         return blkPtrSymID();
     else
     {
@@ -789,7 +780,7 @@ SymID SymbolTableInfo::getValSym(const Value* val)
 
 bool SymbolTableInfo::hasValSym(const Value* val)
 {
-    if (LLVMModuleSet::getLLVMModuleSet()->getSVFValue(val)->isNullPtr() || SymbolTableInfo::isBlackholeSym(val))
+    if (LLVMModuleSet::getLLVMModuleSet()->getSVFValue(val)->isNullPtr() || LLVMModuleSet::getLLVMModuleSet()->getSVFValue(val)->isblackHole())
         return true;
     else
         return (valSymMap.find(val) != valSymMap.end());
