@@ -153,26 +153,36 @@ void LLVMModuleSet::createSVFDataStructure()
 {
     getSVFType(IntegerType::getInt8Ty(getContext()));
     // Functions need to be retrieved in the order of insertion
-    std::vector<const Function*> candidateFuncs;
+    // candidateDefs is the vector for all used defined functions
+    // candidateDecls is the vector for all used declared functions
+    std::vector<const Function*> candidateDefs, candidateDecls;
     for (Module& mod : modules)
     {
         std::vector<Function*> removedFuncList;
         /// Function
         for (Function& func : mod.functions())
         {
-            if (isUsedExtFunction(&func))
+            if (isCalledExtFunction(&func))
             {
                 removedFuncList.push_back(&func);
             }
+            else if (func.isDeclaration())
+            {
+                candidateDecls.push_back(&func);
+            }
             else
             {
-                candidateFuncs.push_back(&func);
+                candidateDefs.push_back(&func);
             }
         }
         /// Remove unused functions and annotations in extapi.bc
         LLVMUtil::removeUnusedFuncsAndAnnotations(removedFuncList);
     }
-    for (const Function* func: candidateFuncs)
+    for (const Function* func: candidateDefs)
+    {
+        createSVFFunction(func);
+    }
+    for (const Function* func: candidateDecls)
     {
         createSVFFunction(func);
     }
@@ -790,7 +800,6 @@ void LLVMModuleSet::buildFunToFunMap()
     OrderedSet<string> declNames, defNames, intersectNames;
     typedef Map<string, const Function*> NameToFunDefMapTy;
     typedef Map<string, Set<const Function*>> NameToFunDeclsMapTy;
-
     for (Module& mod : modules)
     {
         // extapi.bc functions
@@ -798,16 +807,30 @@ void LLVMModuleSet::buildFunToFunMap()
         {
             for (const Function& fun : mod.functions())
             {
-                extFuncs.insert(&fun);
-                // Find overwrite functions in extapi.bc
-                std::vector<std::string> annotations = LLVMUtil::getFunAnnotations(&fun);
-                auto it = std::find_if(annotations.begin(), annotations.end(), [&](const std::string& annotation)
+                // there is main declaration in ext bc, it should be mapped to
+                // main definition in app bc.
+                if (fun.getName().str() == "main")
                 {
-                    return annotation.find("OVERWRITE") != std::string::npos;
-                });
-                if (it != annotations.end())
+                    funDecls.insert(&fun);
+                    declNames.insert(fun.getName().str());
+                }
+                else
                 {
-                    overwriteExtFuncs.insert(&fun);
+                    extFuncs.insert(&fun);
+                    // Find overwrite functions in extapi.bc
+                    std::vector<std::string> annotations =
+                        LLVMUtil::getFunAnnotations(&fun);
+                    auto it =
+                        std::find_if(annotations.begin(), annotations.end(),
+                                     [&](const std::string& annotation)
+                    {
+                        return annotation.find("OVERWRITE") !=
+                               std::string::npos;
+                    });
+                    if (it != annotations.end())
+                    {
+                        overwriteExtFuncs.insert(&fun);
+                    }
                 }
             }
         }
