@@ -36,6 +36,7 @@
 #include "Util/ExtAPI.h"
 #include "MemoryModel/PointsTo.h"
 #include <time.h>
+#include "Graphs/CallGraph.h"
 
 namespace SVF
 {
