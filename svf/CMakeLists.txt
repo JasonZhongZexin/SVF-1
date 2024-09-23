@@ -8,15 +8,28 @@ target_include_directories(SvfCore
     $<INSTALL_INTERFACE:${SVF_INSTALL_INCLUDE_DIR}>
 )
 
+# Set output directories for the library
 set_target_properties(SvfCore PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
     ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
 )
 
+# Set library search path and find the lgraph library
+set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} /usr/local/lib64)
+find_library(LGRAPH_LIB lgraph PATHS /usr/local/lib64)
+
+# Check if the library was found
+if(NOT LGRAPH_LIB)
+    message(FATAL_ERROR "lgraph library not found in /usr/local/lib64")
+endif()
+
 # Get the source files (i.e. all *.c/*.cpp files) for SVF's subprojects and add them to SvfCore
 file(GLOB_RECURSE SVF_CORE_SOURCES lib/*.cpp)
 target_sources(SvfCore PRIVATE ${SVF_CORE_SOURCES})
+
+# Link the found library to the target
+target_link_libraries(SvfCore PRIVATE ${LGRAPH_LIB})
 
 # Get all of the public header files (i.e. all *.h/*.hpp files) for SVF's subprojects and add them
 file(GLOB_RECURSE SVF_CORE_HEADERS include/*.h include/*.hpp)

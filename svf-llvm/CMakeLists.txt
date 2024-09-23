@@ -77,10 +77,11 @@ set_target_properties(SvfLLVM PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
     ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+    BUILD_RPATH "/usr/local/lib64"
 )
 
 # Link LLVM's libraries to SvfLLVM, as well as the SVF core library
-target_link_libraries(SvfLLVM PUBLIC ${llvm_libs} SvfCore)
+target_link_libraries(SvfLLVM PUBLIC ${llvm_libs} SvfCore lgraph)
 
 # Get the source files (i.e. all *.c/*.cpp files) for SVF's subprojects and add them to SvfLLVM
 file(GLOB_RECURSE SVF_LLVM_SOURCES lib/*.cpp)

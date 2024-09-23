@@ -133,6 +133,11 @@ set(CMAKE_INSTALL_RPATH ${Z3_INCLUDES})
 link_libraries(${Z3_LIBRARIES})
 include_directories(SYSTEM ${Z3_INCLUDES})
 
+set(CMAKE_INSTALL_RPATH /usr/local/include/lgraph)
+link_libraries(/usr/local/lib64/)
+include_directories(/usr/local/include/lgraph)
+link_directories("/usr/local/lib64")
+
 # Add the actual SVF and SVF-LLVM targets
 add_subdirectory(svf)
 add_subdirectory(svf-llvm)

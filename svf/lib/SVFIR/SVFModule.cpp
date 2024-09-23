@@ -28,9 +28,11 @@
 #include "Util/Options.h"
 
 using namespace SVF;
+using namespace lgraph;
 
 std::string SVFModule::pagReadFromTxt = "";
 SVFModule* SVFModule::svfModule = nullptr;
+lgraph::RpcClient* SVFModule::dbClient = nullptr;
 
 SVFModule::~SVFModule()
 {
@@ -64,6 +66,16 @@ SVFModule* SVFModule::getSVFModule()
         svfModule = new SVFModule;
     }
     return svfModule;
+}
+
+lgraph::RpcClient* SVFModule::getDBClient()
+{
+    if (dbClient == nullptr)
+    {
+        lgraph::RpcClient* client = new lgraph::RpcClient("127.0.0.1:19099", "admin", "73@TuGraph");
+        return client;
+    }
+    return dbClient;
 }
 
 void SVFModule::releaseSVFModule()

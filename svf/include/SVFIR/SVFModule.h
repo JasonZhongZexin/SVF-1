@@ -33,6 +33,7 @@
 #include "SVFIR/SVFValue.h"
 #include "Util/NodeIDAllocator.h"
 #include "Util/ThreadAPI.h"
+#include "lgraph/lgraph_rpc_client.h"
 
 namespace SVF
 {
@@ -41,6 +42,7 @@ class SVFModule
 {
     friend class SVFIRWriter;
     friend class SVFIRReader;
+    class RpcClient;
 
 public:
     typedef std::vector<const SVFFunction*> FunctionSetType;
@@ -63,6 +65,7 @@ public:
 
 private:
     static SVFModule* svfModule;
+    static lgraph::RpcClient* dbClient;
     static std::string pagReadFromTxt;
     std::string moduleIdentifier;
     FunctionSetType FunctionSet;  ///< The Functions in the module
@@ -77,6 +80,8 @@ private:
 public:
     static SVFModule* getSVFModule();
     static void releaseSVFModule();
+    static lgraph::RpcClient* getDBClient();
+    static void releaseDBClient();
 
     ~SVFModule();
 
