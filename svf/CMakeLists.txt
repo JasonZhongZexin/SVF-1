@@ -1,6 +1,8 @@
 # Define the core library
 add_library(SvfCore)
 
+target_link_libraries(SvfCore PRIVATE ${NEO4J_CLIENT_LIBRARIES})
+
 # Add the public headers as an include directory
 target_include_directories(SvfCore
   PUBLIC

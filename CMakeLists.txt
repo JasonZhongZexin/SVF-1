@@ -133,6 +133,15 @@ set(CMAKE_INSTALL_RPATH ${Z3_INCLUDES})
 link_libraries(${Z3_LIBRARIES})
 include_directories(SYSTEM ${Z3_INCLUDES})
 
+# Add the libneo4j library to all targets of SVF
+find_library(NEO4J_CLIENT_LIBRARIES neo4j-client REQUIRED PATHS /usr/local/lib)
+include_directories(SYSTEM /usr/local/include)
+set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};/usr/local/lib")
+include_directories(SYSTEM /usr/local/include)
+link_directories(/usr/local/lib)
+link_libraries(/usr/local/lib)
+
+
 # Add the actual SVF and SVF-LLVM targets
 add_subdirectory(svf)
 add_subdirectory(svf-llvm)

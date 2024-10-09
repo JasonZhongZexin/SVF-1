@@ -33,6 +33,7 @@
 #include "Util/SVFUtil.h"
 #include "Graphs/CallGraph.h"
 #include "SVFIR/SVFIR.h"
+#include "SVFIR/GraphDBClient.h"
 
 using namespace SVF;
 using namespace SVFUtil;
@@ -110,6 +111,16 @@ CallGraph::CallGraph(CGEK k): kind(k)
 {
     callGraphNodeNum = 0;
     numOfResolvedIndCallEdge = 0;
+    neo4j_connection_t* dbConnection = SVF::GraphDBClient::getInstance().getConnection();
+    if (dbConnection != nullptr)
+    {
+        if (dbConnection != nullptr) {
+        SVF::GraphDBClient::getInstance().loadSchema(dbConnection, "./DBSchema/CallGraphEdgeSchema.json", "CALL db.createEdgeLabelByJson($edge_schema)");
+        SVF::GraphDBClient::getInstance().loadSchema(dbConnection, "./DBSchema/CallGraphNodeSchema.json", "CALL db.createVertexLabelByJson($node_schema)");
+    } else {
+        SVFUtil::outs() << "Failed to connect to the database.\n";
+    }
+    }
 }
 
 /*!

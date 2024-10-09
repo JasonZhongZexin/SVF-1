@@ -231,8 +231,8 @@ if [[ ! -d "$Z3_DIR" ]]; then
 fi
 
 # Add LLVM & Z3 to $PATH and $LD_LIBRARY_PATH (prepend so that selected instances will be used first)
-PATH=$LLVM_DIR/bin:$Z3_DIR/bin:$PATH
-LD_LIBRARY_PATH=$LLVM_DIR/lib:$Z3_BIN/lib:$LD_LIBRARY_PATH
+PATH=$LLVM_DIR/bin:$Z3_DIR/bin:/usr/local/lib:$PATH
+LD_LIBRARY_PATH=$LLVM_DIR/lib:$Z3_BIN/lib:/usr/local/lib:$LD_LIBRARY_PATH
 
 echo "LLVM_DIR=$LLVM_DIR"
 echo "Z3_DIR=$Z3_DIR"

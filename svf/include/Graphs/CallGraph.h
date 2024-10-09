@@ -34,12 +34,14 @@
 #include "SVFIR/SVFValue.h"
 #include "Graphs/ICFG.h"
 #include <set>
+#include "SVFIR/GraphDBClient.h"
 
 namespace SVF
 {
 
 class CallGraphNode;
 class SVFModule;
+class GraphDBClient;
 
 
 /*
