@@ -114,8 +114,6 @@ class IntraCFGEdge : public ICFGEdge
 {
     friend class SVFIRWriter;
     friend class SVFIRReader;
-    friend class ICFG;
-    friend class SVFIRBuilder;
 
 public:
     /// Constructor
@@ -139,7 +137,7 @@ public:
     }
     //@}
 
-    const SVFVar* getCondition() const
+    const SVFValue* getCondition() const
     {
         return conditionVar;
     }
@@ -148,6 +146,12 @@ public:
     {
         assert(getCondition() && "this is not a conditional branch edge");
         return branchCondVal;
+    }
+
+    void setBranchCondition(const SVFValue* c, s64_t bVal)
+    {
+        conditionVar = c;
+        branchCondVal = bVal;
     }
 
     virtual const std::string toString() const;
@@ -162,18 +166,8 @@ private:
     ///       Inst3: label 1;
     /// for edge between Inst1 and Inst 2, the first element is %cmp and
     /// the second element is 0
-    const SVFVar* conditionVar;
+    const SVFValue* conditionVar;
     s64_t branchCondVal;
-
-    inline void setConditionVar(const SVFVar* c)
-    {
-        conditionVar = c;
-    }
-
-    inline void setBranchCondVal(s64_t bVal)
-    {
-        branchCondVal = bVal;
-    }
 };
 
 /*!

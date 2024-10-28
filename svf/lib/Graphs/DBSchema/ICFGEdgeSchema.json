@@ -1,0 +1,26 @@
+{
+    "schema": [
+        {
+            "label" : "IntraCFGEdge",
+            "type" : "EDGE",
+            "properties" : [
+                {}
+            ]
+        },
+        {
+            "label" : "CallCFGEdge",
+            "type" : "EDGE",
+            "properties" : [
+                {}
+            ]
+        },
+        {
+            "label" : "RetCFGEdge",
+            "type" : "EDGE",
+            "properties" : [
+                {}
+            ]
+        }
+    ]
+}
+  

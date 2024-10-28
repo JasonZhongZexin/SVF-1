@@ -1,0 +1,313 @@
+{
+    "schema": [
+        {
+            "label" : "IntraICFGNode",
+            "type" : "VERTEX",
+            "primary" : "id",
+            "properties" : [
+                {
+                    "name" : "id", 
+                    "type":"INT32",
+                    "optional":false,
+                    "index":true
+                },
+                {
+                    "name":"kind",
+                    "type":"STRING",
+                    "optional":false,
+                    "index":false
+                },
+                {
+                    "name":"function_name",
+                    "type":"STRING",
+                    "optional":false,
+                    "index":false
+                },
+                {
+                    "name":"function_id",
+                    "type":"INT32",
+                    "optional":false,
+                    "index":false
+                },
+                {
+                    "name":"bb_id",
+                    "type":"INT32",
+                    "optional":false,
+                    "index":false
+                },
+                {
+                    "name":"inst_id",
+                    "type":"INT32",
+                    "optional":false,
+                    "index":false
+                },
+                {
+                    "name":"pag_edge_ids",
+                    "type":"STRING",
+                    "optional":false,
+                    "index":false
+                }
+            ]
+        },
+        {
+            "label" : "FunEntryICFGNode",
+            "type" : "VERTEX",
+            "primary" : "id",
+            "properties" : [
+                {
+                    "name" : "id", 
+                    "type":"INT32",
+                    "optional":false,
+                    "index":true
+                },
+                {
+                    "name":"kind",
+                    "type":"STRING",
+                    "optional":false,
+                    "index":false
+                },
+                {
+                    "name":"function_name",
+                    "type":"STRING",
+                    "optional":false,
+                    "index":false
+                },
+                {
+                    "name":"function_id",
+                    "type":"INT32",
+                    "optional":false,
+                    "index":false
+                },
+                {
+                    "name":"bb_id",
+                    "type":"INT32",
+                    "optional":false,
+                    "index":false
+                },
+                {
+                    "name":"pag_edge_ids",
+                    "type":"STRING",
+                    "optional":false,
+                    "index":false
+                },
+                {
+                    "name":"FP_nodes",
+                    "type":"STRING",
+                    "optional":false,
+                    "index":false
+                }
+            ]
+        },
+        {
+            "label" : "FunExitICFGNode",
+            "type" : "VERTEX",
+            "primary" : "id",
+            "properties" : [
+                {
+                    "name" : "id", 
+                    "type":"INT32",
+                    "optional":false,
+                    "index":true
+                },
+                {
+                    "name":"kind",
+                    "type":"STRING",
+                    "optional":false,
+                    "index":false
+                },
+                {
+                    "name":"function_name",
+                    "type":"STRING",
+                    "optional":false,
+                    "index":false
+                },
+                {
+                    "name":"function_id",
+                    "type":"INT32",
+                    "optional":false,
+                    "index":false
+                },
+                {
+                    "name":"bb_id",
+                    "type":"INT32",
+                    "optional":false,
+                    "index":false
+                },
+                {
+                    "name":"pag_edge_ids",
+                    "type":"STRING",
+                    "optional":false,
+                    "index":false
+                },{
+                    "name":"FP_node_ids",
+                    "type":"STRING",
+                    "optional":false,
+                    "index":false
+                }
+            ]
+        },
+        {
+            "label" : "CallICFGNode",
+            "type" : "VERTEX",
+            "primary" : "id",
+            "properties" : [
+                {
+                    "id" : "id", 
+                    "type":"INT32",
+                    "optional":false,
+                    "index":true
+                },
+                {
+                    "name":"kind",
+                    "type":"STRING",
+                    "optional":false,
+                    "index":false
+                },
+                {
+                    "name":"function_name",
+                    "type":"STRING",
+                    "optional":false,
+                    "index":false
+                },
+                {
+                    "name":"function_id",
+                    "type":"INT32",
+                    "optional":false,
+                    "index":false
+                },
+                {
+                    "name":"bb_id",
+                    "type":"INT32",
+                    "optional":false,
+                    "index":false
+                },
+                {
+                    "name":"pag_edge_ids",
+                    "type":"STRING",
+                    "optional":false,
+                    "index":false
+                },
+                {
+                    "name":"ret_icfg_node_id",
+                    "type":"INT32",
+                    "optional":false,
+                    "index":false
+                },{
+                    "name":"AP_node_ids",
+                    "type":"STRING",
+                    "optional":false,
+                    "index":false
+                },{
+                    "name":"cs_id",
+                    "type":"INT32",
+                    "optional":false,
+                    "index":false
+                }
+            ]
+        },
+        {
+            "label" : "RetICFGNode",
+            "type" : "VERTEX",
+            "primary" : "id",
+            "properties" : [
+                {
+                    "id" : "id", 
+                    "type":"INT32",
+                    "optional":false,
+                    "index":true
+                },
+                {
+                    "name":"kind",
+                    "type":"STRING",
+                    "optional":false,
+                    "index":false
+                },
+                {
+                    "name":"function_name",
+                    "type":"STRING",
+                    "optional":false,
+                    "index":false
+                },
+                {
+                    "name":"function_id",
+                    "type":"INT32",
+                    "optional":false,
+                    "index":false
+                },
+                {
+                    "name":"bb_id",
+                    "type":"INT32",
+                    "optional":false,
+                    "index":false
+                },
+                {
+                    "name":"pag_edge_ids",
+                    "type":"STRING",
+                    "optional":false,
+                    "index":false
+                },
+                {
+                    "name":"actual_ret_node_id",
+                    "type":"INT32",
+                    "optional":false,
+                    "index":false
+                },{
+                    "name":"call_icfg_node_id",
+                    "type":"INT32",
+                    "optional":false,
+                    "index":false
+                },
+                {
+                    "name":"cs_id",
+                    "type":"INT32",
+                    "optional":false,
+                    "index":false
+                }
+            ]
+        },
+        {
+            "label" : "GlobalICFGNode",
+            "type" : "VERTEX",
+            "primary" : "id",
+            "properties" : [
+                {
+                    "name" : "id", 
+                    "type":"INT32",
+                    "optional":false,
+                    "index":true
+                },
+                {
+                    "name":"kind",
+                    "type":"STRING",
+                    "optional":false,
+                    "index":false
+                },
+                {
+                    "name":"function_name",
+                    "type":"STRING",
+                    "optional":false,
+                    "index":false
+                },
+                {
+                    "name":"function_id",
+                    "type":"INT32",
+                    "optional":false,
+                    "index":false
+                },
+                {
+                    "name":"bb_id",
+                    "type":"INT32",
+                    "optional":false,
+                    "index":false
+                },
+                {
+                    "name":"pag_edge_ids",
+                    "type":"STRING",
+                    "optional":false,
+                    "index":false
+                }
+            ]
+        }
+    ]
+}
+  

@@ -58,11 +58,11 @@ private:
 public:
     typedef FIFOWorkList<const Instruction*> WorkList;
 
-    ICFGBuilder(): icfg(new ICFG())
+    ICFGBuilder(ICFG* i): icfg(i)
     {
 
     }
-    ICFG* build();
+    void build();
 
 private:
 

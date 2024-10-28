@@ -38,7 +38,7 @@
 namespace SVF
 {
 
-class PTACallGraph;
+class CallGraph;
 
 /*!
  * Interprocedural Control-Flow Graph (ICFG)
@@ -111,7 +111,7 @@ public:
     void view();
 
     /// update ICFG for indirect calls
-    void updateCallGraph(PTACallGraph* callgraph);
+    void updateCallGraph(CallGraph* callgraph);
 
     /// Whether node is in a loop
     inline bool isInLoop(const ICFGNode *node)
@@ -143,7 +143,7 @@ protected:
     /// Add intraprocedural and interprocedural control-flow edges.
     //@{
     ICFGEdge* addIntraEdge(ICFGNode* srcNode, ICFGNode* dstNode);
-    ICFGEdge* addConditionalIntraEdge(ICFGNode* srcNode, ICFGNode* dstNode, s64_t branchCondVal);
+    ICFGEdge* addConditionalIntraEdge(ICFGNode* srcNode, ICFGNode* dstNode, const SVFValue* condition, s32_t branchCondVal);
     ICFGEdge* addCallEdge(ICFGNode* srcNode, ICFGNode* dstNode);
     ICFGEdge* addRetEdge(ICFGNode* srcNode, ICFGNode* dstNode);
     //@}

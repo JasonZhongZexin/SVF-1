@@ -31,25 +31,41 @@
 #ifndef INCLUDE_SVF_FE_CALLGRAPHBUILDER_H_
 #define INCLUDE_SVF_FE_CALLGRAPHBUILDER_H_
 
-#include "Graphs/PTACallGraph.h"
+#include "Graphs/CallGraph.h"
 #include "Graphs/ThreadCallGraph.h"
 
 namespace SVF
 {
 
 class ICFG;
-class SVFModule;
 
 class CallGraphBuilder
 {
-public:
-    CallGraphBuilder()=default;
 
-    /// Buidl SVFIR callgraoh
-    PTACallGraph* buildSVFIRCallGraph(SVFModule* svfModule);
+protected:
+    CallGraph* callgraph;
+    ICFG* icfg;
+public:
+    CallGraphBuilder(CallGraph* cg, ICFG* i): callgraph(cg),icfg(i)
+    {
+    }
+
+    /// Build normal callgraph
+    CallGraph* buildCallGraph(SVFModule* svfModule);
+
+};
+
+class ThreadCallGraphBuilder : public CallGraphBuilder
+{
+
+public:
+    ThreadCallGraphBuilder(ThreadCallGraph* cg, ICFG* i): CallGraphBuilder(cg,i)
+    {
+    }
 
     /// Build thread-aware callgraph
-    ThreadCallGraph* buildThreadCallGraph();
+    CallGraph* buildThreadCallGraph(SVFModule* svfModule);
+
 };
 
 } // End namespace SVF

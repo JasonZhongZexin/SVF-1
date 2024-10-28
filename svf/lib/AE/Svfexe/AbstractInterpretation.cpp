@@ -452,7 +452,9 @@ bool AbstractInterpretation::isSwitchBranchFeasible(const SVFVar* var, s64_t suc
 bool AbstractInterpretation::isBranchFeasible(const IntraCFGEdge* intraEdge,
         AbstractState& as)
 {
-    const SVFVar *cmpVar = intraEdge->getCondition();
+    const SVFValue *cond = intraEdge->getCondition();
+    NodeID cmpID = svfir->getValueNode(cond);
+    SVFVar *cmpVar = svfir->getGNode(cmpID);
     if (cmpVar->getInEdges().empty())
     {
         return isSwitchBranchFeasible(cmpVar,

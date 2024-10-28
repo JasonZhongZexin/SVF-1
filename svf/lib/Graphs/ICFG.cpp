@@ -27,11 +27,11 @@
  *      Author: Yulei Sui
  */
 
-#include "Graphs/ICFG.h"
-#include "Graphs/PTACallGraph.h"
-#include "SVFIR/SVFIR.h"
-#include "SVFIR/SVFModule.h"
 #include <Util/Options.h>
+#include "SVFIR/SVFModule.h"
+#include "Graphs/ICFG.h"
+#include "SVFIR/SVFIR.h"
+#include "Graphs/CallGraph.h"
 
 using namespace SVF;
 using namespace SVFUtil;
@@ -341,7 +341,7 @@ ICFGEdge* ICFG::addIntraEdge(ICFGNode* srcNode, ICFGNode* dstNode)
 /*!
  * Add conditional intraprocedural edges between two nodes
  */
-ICFGEdge* ICFG::addConditionalIntraEdge(ICFGNode* srcNode, ICFGNode* dstNode, s64_t branchCondVal)
+ICFGEdge* ICFG::addConditionalIntraEdge(ICFGNode* srcNode, ICFGNode* dstNode, const SVFValue* condition, s32_t branchCondVal)
 {
 
     checkIntraEdgeParents(srcNode, dstNode);
@@ -354,7 +354,7 @@ ICFGEdge* ICFG::addConditionalIntraEdge(ICFGNode* srcNode, ICFGNode* dstNode, s6
     else
     {
         IntraCFGEdge* intraEdge = new IntraCFGEdge(srcNode,dstNode);
-        intraEdge->setBranchCondVal(branchCondVal);
+        intraEdge->setBranchCondition(condition,branchCondVal);
         return (addICFGEdge(intraEdge) ? intraEdge : nullptr);
     }
 }
@@ -416,16 +416,16 @@ void ICFG::view()
 /*!
  * Update ICFG for indirect calls
  */
-void ICFG::updateCallGraph(PTACallGraph* callgraph)
+void ICFG::updateCallGraph(CallGraph* callgraph)
 {
-    PTACallGraph::CallEdgeMap::const_iterator iter = callgraph->getIndCallMap().begin();
-    PTACallGraph::CallEdgeMap::const_iterator eiter = callgraph->getIndCallMap().end();
+    CallGraph::CallEdgeMap::const_iterator iter = callgraph->getIndCallMap().begin();
+    CallGraph::CallEdgeMap::const_iterator eiter = callgraph->getIndCallMap().end();
     for (; iter != eiter; iter++)
     {
         CallICFGNode* callBlockNode = const_cast<CallICFGNode*>(iter->first);
         assert(callBlockNode->isIndirectCall() && "this is not an indirect call?");
-        const PTACallGraph::FunctionSet & functions = iter->second;
-        for (PTACallGraph::FunctionSet::const_iterator func_iter = functions.begin(); func_iter != functions.end(); func_iter++)
+        const CallGraph::FunctionSet & functions = iter->second;
+        for (CallGraph::FunctionSet::const_iterator func_iter = functions.begin(); func_iter != functions.end(); func_iter++)
         {
             const SVFFunction*  callee = *func_iter;
             RetICFGNode* retBlockNode = const_cast<RetICFGNode*>(callBlockNode->getRetICFGNode());

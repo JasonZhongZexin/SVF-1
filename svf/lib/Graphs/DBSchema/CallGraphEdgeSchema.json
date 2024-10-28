@@ -1,0 +1,29 @@
+{
+    "schema": [
+        {
+            "label":"CallRetEdge",
+            "type":"EDGE",
+            "properties" : [
+                {
+                    "name" : "csid", 
+                    "type":"INT32",
+                    "optional":false,
+                    "index":true
+                },
+                {
+                    "name":"kind",
+                    "type":"STRING",
+                    "optional":false,
+                    "index":false
+                },
+                {
+                    "name":"isDirectCall",
+                    "type":"BOOL",
+                    "optional":false,
+                    "index":false
+                }
+            ]
+        }
+    ]
+}
+  

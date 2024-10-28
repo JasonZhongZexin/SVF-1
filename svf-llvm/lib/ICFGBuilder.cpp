@@ -40,7 +40,7 @@ using namespace SVFUtil;
 /*!
  * Create ICFG nodes and edges
  */
-ICFG* ICFGBuilder::build()
+void ICFGBuilder::build()
 {
     DBOUT(DGENERAL, outs() << pasMsg("\t Building ICFG ...\n"));
     // Add the unique global ICFGNode at the entry of a program (before the main method).
@@ -78,7 +78,6 @@ ICFG* ICFGBuilder::build()
 
     }
     connectGlobalToProgEntry();
-    return icfg;
 }
 
 void ICFGBuilder::checkICFGNodesVisited(const Function* fun)
@@ -157,7 +156,7 @@ void ICFGBuilder::processFunBody(WorkList& worklist)
         }
         InstVec nextInsts;
         LLVMUtil::getNextInsts(inst, nextInsts);
-        s64_t branchID = 0;
+        u32_t branchID = 0;
         for (InstVec::const_iterator nit = nextInsts.begin(), enit =
                     nextInsts.end(); nit != enit; ++nit)
         {
@@ -185,7 +184,7 @@ void ICFGBuilder::processFunBody(WorkList& worklist)
             {
                 assert(branchID <= 1 && "if/else has more than two branches?");
                 if(br->isConditional())
-                    icfg->addConditionalIntraEdge(srcNode, dstNode, 1 - branchID);
+                    icfg->addConditionalIntraEdge(srcNode, dstNode, llvmModuleSet()->getSVFValue(br->getCondition()), 1 - branchID);
                 else
                     icfg->addIntraEdge(srcNode, dstNode);
             }
@@ -197,7 +196,7 @@ void ICFGBuilder::processFunBody(WorkList& worklist)
                 s64_t val = -1;
                 if (condVal && condVal->getBitWidth() <= 64)
                     val = condVal->getSExtValue();
-                icfg->addConditionalIntraEdge(srcNode, dstNode,val);
+                icfg->addConditionalIntraEdge(srcNode, dstNode, llvmModuleSet()->getSVFValue(si->getCondition()),val);
             }
             else
                 icfg->addIntraEdge(srcNode, dstNode);
@@ -236,6 +235,8 @@ void ICFGBuilder::processFunExit(const Function*  f)
  */
 InterICFGNode* ICFGBuilder::addInterBlockICFGNode(const Instruction* inst)
 {
+    SVFInstruction* svfInst =
+        llvmModuleSet()->getSVFInstruction(inst);
     assert(LLVMUtil::isCallSite(inst) && "not a call instruction?");
     assert(LLVMUtil::isNonInstricCallSite(inst) && "associating an intrinsic debug instruction with an ICFGNode!");
     assert(llvmModuleSet()->getCallBlock(inst)==nullptr && "duplicate CallICFGNode");
@@ -253,10 +254,8 @@ InterICFGNode* ICFGBuilder::addInterBlockICFGNode(const Instruction* inst)
                          llvmModuleSet()->getSVFValue(called_llvmval));
     }
 
-    SVFBasicBlock* bb = llvmModuleSet()->getSVFBasicBlock(inst->getParent());
-
     CallICFGNode* callICFGNode = icfg->addCallICFGNode(
-                                     bb, llvmModuleSet()->getSVFType(inst->getType()),
+                                     svfInst->getParent(), llvmModuleSet()->getSVFType(inst->getType()),
                                      calledFunc, cb->getFunctionType()->isVarArg(), isvcall,
                                      isvcall ? cppUtil::getVCallIdx(cb) : 0,
                                      isvcall ? cppUtil::getFunNameOfVCallSite(cb) : "");
@@ -331,22 +330,25 @@ void ICFGBuilder::connectGlobalToProgEntry()
 inline ICFGNode* ICFGBuilder::addBlockICFGNode(const Instruction* inst)
 {
     ICFGNode* node;
+    SVFInstruction* svfINst =
+        llvmModuleSet()->getSVFInstruction(inst);
     if(LLVMUtil::isNonInstricCallSite(inst))
         node = addInterBlockICFGNode(inst);
     else
         node = addIntraBlockICFGNode(inst);
-    const_cast<SVFBasicBlock*>(
-        llvmModuleSet()->getSVFBasicBlock(inst->getParent()))
+    const_cast<SVFBasicBlock*>(svfINst->getParent())
     ->addICFGNode(node);
     return node;
 }
 
 IntraICFGNode* ICFGBuilder::addIntraBlockICFGNode(const Instruction* inst)
 {
+    SVFInstruction* svfInst =
+        llvmModuleSet()->getSVFInstruction(inst);
     IntraICFGNode* node = llvmModuleSet()->getIntraBlock(inst);
     assert (node==nullptr && "no IntraICFGNode for this instruction?");
     IntraICFGNode* sNode = icfg->addIntraICFGNode(
-                               llvmModuleSet()->getSVFBasicBlock(inst->getParent()), SVFUtil::isa<ReturnInst>(inst));
+                               svfInst->getParent(), SVFUtil::isa<ReturnInst>(inst));
     instToBlockNodeMap()[inst] = sNode;
     llvmModuleSet()->setValueAttr(inst, sNode);
     return sNode;

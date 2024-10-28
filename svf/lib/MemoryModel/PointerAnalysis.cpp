@@ -111,13 +111,15 @@ void PointerAnalysis::initialize()
     /// initialise pta call graph for every pointer analysis instance
     if(Options::EnableThreadCallGraph())
     {
-        CallGraphBuilder bd;
-        callgraph = bd.buildThreadCallGraph();
+        ThreadCallGraph* cg = new ThreadCallGraph();
+        ThreadCallGraphBuilder bd(cg, pag->getICFG());
+        callgraph = bd.buildThreadCallGraph(pag->getModule());
     }
     else
     {
-        PTACallGraph* cg = pag->getCallGraph();
-        callgraph = new PTACallGraph(*cg);
+        CallGraph* cg = new CallGraph();
+        CallGraphBuilder bd(cg,pag->getICFG());
+        callgraph = bd.buildCallGraph(pag->getModule());
     }
     callGraphSCCDetection();
 
@@ -413,7 +415,7 @@ void PointerAnalysis::resolveIndCalls(const CallICFGNode* cs, const PointsTo& ta
                     callgraph->addIndirectCallGraphEdge(cs, cs->getCaller(), callee);
                     // FIXME: do we need to update llvm call graph here?
                     // The indirect call is maintained by ourself, We may update llvm's when we need to
-                    //PTACallGraphNode* callgraphNode = callgraph->getOrInsertFunction(cs.getCaller());
+                    //CallGraphNode* callgraphNode = callgraph->getOrInsertFunction(cs.getCaller());
                     //callgraphNode->addCalledFunction(cs,callgraph->getOrInsertFunction(callee));
                 }
             }

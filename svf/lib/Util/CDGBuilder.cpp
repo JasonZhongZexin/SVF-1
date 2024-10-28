@@ -27,7 +27,6 @@
  *      Author: Xiao Cheng
  */
 #include "Util/CDGBuilder.h"
-#include "Graphs/PTACallGraph.h"
 
 using namespace SVF;
 using namespace SVFUtil;
@@ -123,10 +122,8 @@ s64_t CDGBuilder::getBBSuccessorBranchID(const SVFBasicBlock *BB, const SVFBasic
  */
 void CDGBuilder::buildControlDependence(const SVFModule *svfgModule)
 {
-    PTACallGraph* svfirCallGraph = PAG::getPAG()->getCallGraph();
-    for (const auto& item: *svfirCallGraph)
+    for (const auto &svfFun: *svfgModule)
     {
-        const SVFFunction *svfFun = (item.second)->getFunction();
         if (SVFUtil::isExtCall(svfFun)) continue;
         // extract basic block edges to be processed
         Map<const SVFBasicBlock *, std::vector<const SVFBasicBlock *>> BBS;

@@ -38,7 +38,6 @@
 #include "SVFIR/SVFFileSystem.h"
 #include "SVFIR/SVFModule.h"
 #include "SVFIR/SVFValue.h"
-#include "Util/CallGraphBuilder.h"
 #include "Util/Options.h"
 #include "Util/SVFUtil.h"
 
@@ -61,10 +60,10 @@ SVFIR* SVFIRBuilder::build()
     pag->setModule(svfModule);
 
     // Build ICFG
-    pag->setICFG(llvmModuleSet()->getICFG());
-
-    // Set callgraph
-    pag->setCallGraph(llvmModuleSet()->callgraph);
+    ICFG* icfg = new ICFG();
+    ICFGBuilder icfgbuilder(icfg);
+    icfgbuilder.build();
+    pag->setICFG(icfg);
 
     // Set icfgnode in memobj
     for (auto& it : SymbolTableInfo::SymbolInfo()->idToObjMap())
@@ -975,17 +974,6 @@ void SVFIRBuilder::visitBranchInst(BranchInst &inst)
         branchID++;
     }
     addBranchStmt(brinst, cond, successors);
-    /// set conditional svf var
-    if (inst.isConditional())
-    {
-        for (auto& edge : llvmModuleSet()->getICFGNode(&inst)->getOutEdges())
-        {
-            if (IntraCFGEdge* intraEdge = SVFUtil::dyn_cast<IntraCFGEdge>(edge))
-            {
-                intraEdge->setConditionVar(pag->getGNode(cond));
-            }
-        }
-    }
 }
 
 
@@ -1054,14 +1042,6 @@ void SVFIRBuilder::visitSwitchInst(SwitchInst &inst)
         successors.push_back(std::make_pair(icfgNode, val));
     }
     addBranchStmt(brinst, cond, successors);
-    /// set conditional svf var
-    for (auto& edge : llvmModuleSet()->getICFGNode(&inst)->getOutEdges())
-    {
-        if (IntraCFGEdge* intraEdge = SVFUtil::dyn_cast<IntraCFGEdge>(edge))
-        {
-            intraEdge->setConditionVar(pag->getGNode(cond));
-        }
-    }
 }
 
 
@@ -1189,17 +1169,17 @@ void SVFIRBuilder::handleIndCall(CallBase* cs)
     pag->addIndirectCallsites(cbn,pag->getValueNode(svfcalledval));
 }
 
-void SVFIRBuilder::updateCallGraph(PTACallGraph* callgraph)
+void SVFIRBuilder::updateCallGraph(CallGraph* callgraph)
 {
-    PTACallGraph::CallEdgeMap::const_iterator iter = callgraph->getIndCallMap().begin();
-    PTACallGraph::CallEdgeMap::const_iterator eiter = callgraph->getIndCallMap().end();
+    CallGraph::CallEdgeMap::const_iterator iter = callgraph->getIndCallMap().begin();
+    CallGraph::CallEdgeMap::const_iterator eiter = callgraph->getIndCallMap().end();
     for (; iter != eiter; iter++)
     {
         const CallICFGNode* callBlock = iter->first;
         const CallBase* callbase = SVFUtil::cast<CallBase>(llvmModuleSet()->getLLVMValue(callBlock));
         assert(callBlock->isIndirectCall() && "this is not an indirect call?");
-        const PTACallGraph::FunctionSet& functions = iter->second;
-        for (PTACallGraph::FunctionSet::const_iterator func_iter = functions.begin(); func_iter != functions.end(); func_iter++)
+        const CallGraph::FunctionSet& functions = iter->second;
+        for (CallGraph::FunctionSet::const_iterator func_iter = functions.begin(); func_iter != functions.end(); func_iter++)
         {
             const Function* callee = SVFUtil::cast<Function>(llvmModuleSet()->getLLVMValue(*func_iter));
 
