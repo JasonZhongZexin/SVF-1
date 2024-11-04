@@ -1,63 +1,61 @@
 #ifndef INCLUDE_GRAPHDBCLIENT_H_
 #define INCLUDE_GRAPHDBCLIENT_H_
-#include <neo4j-client.h>
 #include "Util/SVFUtil.h"
-
+#include "lgraph/lgraph_rpc_client.h"
+#include <errno.h>
+#include <stdio.h>
+#include "Graphs/CallGraph.h"
 
 namespace SVF
 {
-    class GraphDBClient{
-        private:
-            neo4j_connection_t* connection;
+class RpcClient;
+class CallGraphEdge;
+class CallGraphNode;
+class GraphDBClient
+{
+private:
+    lgraph::RpcClient* connection;
 
-            GraphDBClient()
-            {
-                const char* uri = "bolt://localhost:7687";
-                neo4j_config_t* config = neo4j_new_config();
-                if (neo4j_config_set_username(config, "admin") != 0 && 
-                    neo4j_config_set_password(config, "73@TuGraph") != 0){
-                     SVFUtil::outs() << "Failed to connect to GraphDB.\n";
-                } else {
-                    connection = neo4j_connect(uri, config, NEO4J_INSECURE);
-                    if (connection == nullptr) {
-                        SVFUtil::outs() << "Failed to connect to GraphDB.\n";
-                    } else {
-                        SVFUtil::outs() << "Connected to GraphDB successfully.\n";
-                    }
-                }
-                
-            }
+    GraphDBClient()
+    {
+        const char* url = "127.0.0.1:9090";
+        connection = new lgraph::RpcClient(url, "admin", "73@TuGraph");
+    }
 
-            ~GraphDBClient()
-            {
-                if (connection != nullptr)
-                {
-                   if (neo4j_close(connection) !=0){
-                        SVFUtil::outs() << "Failed to close GraphDB.\n";
-                    } else {
-                        SVFUtil::outs() << "GraphDB connection closed.\n";
-                        connection = nullptr; 
-                    }
-                }
-            }
-        public:
-            static GraphDBClient& getInstance()
-            {
-                static GraphDBClient instance;
-                return instance;
-            }
+    ~GraphDBClient()
+    {
+        if (connection != nullptr)
+        {
+            connection = nullptr;
+        }
+    }
 
-            GraphDBClient(const GraphDBClient&) = delete;
-            GraphDBClient& operator = (const GraphDBClient&) = delete;
+public:
+    static GraphDBClient& getInstance()
+    {
+        static GraphDBClient instance;
+        return instance;
+    }
 
-            neo4j_connection_t* getConnection()
-            {
-                return connection;
-            }
-            
-            void loadSchema(neo4j_connection_t* connection, const std::string& filepath, const std::string& queryParam);
-    };
+    GraphDBClient(const GraphDBClient&) = delete;
+    GraphDBClient& operator=(const GraphDBClient&) = delete;
 
-}
+    lgraph::RpcClient* getConnection()
+    {
+        return connection;
+    }
 
-#endif 
+    bool loadSchema(lgraph::RpcClient* connection, const std::string& filepath,
+                    const std::string& dbname);
+    bool addCallGraphNode2db(lgraph::RpcClient* connection, const CallGraphNode* node,
+                    const std::string& dbname);
+    bool addCallGraphEdge2db(lgraph::RpcClient* connection,
+                             const CallGraphEdge* edge, const int& csid,
+                             const std::string& dbname);
+    // pasre the directcallsIds/indirectcallsIds string to vector
+    std::vector<int> stringToIds(const std::string& str);
+};
+
+} // namespace SVF
+
+#endif

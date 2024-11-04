@@ -18,7 +18,7 @@
                     "index":false
                 },
                 {
-                    "name":"isReachableFromProgEntry",
+                    "name":"is_reachable_from_prog_entry",
                     "type":"BOOL",
                     "optional":false,
                     "index":false
@@ -27,4 +27,3 @@
         }
     ]
 }
-  

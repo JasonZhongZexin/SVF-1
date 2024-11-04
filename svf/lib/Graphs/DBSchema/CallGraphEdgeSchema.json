@@ -1,7 +1,7 @@
 {
     "schema": [
         {
-            "label":"CallRetEdge",
+            "label":"CallGraphEdge",
             "type":"EDGE",
             "properties" : [
                 {
@@ -12,13 +12,25 @@
                 },
                 {
                     "name":"kind",
-                    "type":"STRING",
+                    "type":"INT32",
                     "optional":false,
                     "index":false
                 },
                 {
                     "name":"isDirectCall",
                     "type":"BOOL",
+                    "optional":false,
+                    "index":false
+                },
+                {
+                    "name":"directCalls",
+                    "type":"STRING",
+                    "optional":false,
+                    "index":false
+                },
+                {
+                    "name":"indirectCalls",
+                    "type":"STRING",
                     "optional":false,
                     "index":false
                 }

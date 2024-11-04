@@ -41,6 +41,7 @@ using namespace SVFUtil;
 CallGraph::CallSiteToIdMap CallGraph::csToIdMap;
 CallGraph::IdToCallSiteMap CallGraph::idToCSMap;
 CallSiteID CallGraph::totalCallSiteNum = 1;
+lgraph::RpcClient* dbConnection = SVF::GraphDBClient::getInstance().getConnection();
 
 
 /// Add direct and indirect callsite
@@ -111,15 +112,25 @@ CallGraph::CallGraph(CGEK k): kind(k)
 {
     callGraphNodeNum = 0;
     numOfResolvedIndCallEdge = 0;
-    neo4j_connection_t* dbConnection = SVF::GraphDBClient::getInstance().getConnection();
     if (dbConnection != nullptr)
     {
-        if (dbConnection != nullptr) {
-        SVF::GraphDBClient::getInstance().loadSchema(dbConnection, "./DBSchema/CallGraphEdgeSchema.json", "CALL db.createEdgeLabelByJson($edge_schema)");
-        SVF::GraphDBClient::getInstance().loadSchema(dbConnection, "./DBSchema/CallGraphNodeSchema.json", "CALL db.createVertexLabelByJson($node_schema)");
-    } else {
-        SVFUtil::outs() << "Failed to connect to the database.\n";
-    }
+        std::string result;
+        bool ret = dbConnection->CallCypherToLeader(result,"CALL dbms.graph.createGraph('callGraph')");
+        SVFUtil::outs()<<"Create Graph result: "<<result<<"\n";
+        // create a new graph named callGraph in the GraphDB
+        if ( ret )
+        {
+            if (dbConnection != nullptr) {
+            // load edge schema to the callGraph db
+            SVF::GraphDBClient::getInstance().loadSchema(dbConnection, "/root/svf/SVF-1/svf/lib/Graphs/DBSchema/CallGraphEdgeSchema.json","callGraph");
+            //load vertex schema to the callGraph db
+            SVF::GraphDBClient::getInstance().loadSchema(dbConnection, "/root/svf/SVF-1/svf/lib/Graphs/DBSchema/CallGraphNodeSchema.json", "callGraph");
+            } else {
+                SVFUtil::outs()<<"Failed to create graphDB for callGraph.\n";
+            }
+        } else {
+            SVFUtil::outs() << "Failed to create sub-graph [callGraph]\n";
+        }
     }
 }
 
@@ -140,6 +151,10 @@ void CallGraph::addCallGraphNode(const SVFFunction* fun)
     addGNode(id,callGraphNode);
     funToCallGraphNodeMap[fun] = callGraphNode;
     callGraphNodeNum++;
+    if ( nullptr != dbConnection)
+    {
+        SVF::GraphDBClient::getInstance().addCallGraphNode2db(dbConnection, callGraphNode, "callGraph");
+    }
 }
 
 /*!
@@ -190,6 +205,7 @@ void CallGraph::addDirectCallGraphEdge(const CallICFGNode* cs,const SVFFunction*
         CallGraphEdge* edge = new CallGraphEdge(caller,callee,CallGraphEdge::CallRetEdge,csId);
         edge->addDirectCallSite(cs);
         addEdge(edge);
+        SVF::GraphDBClient::getInstance().addCallGraphEdge2db(dbConnection, edge, csId, "callGraph");
         callinstToCallGraphEdgesMap[cs].insert(edge);
     }
 }
@@ -212,6 +228,7 @@ void CallGraph::addIndirectCallGraphEdge(const CallICFGNode* cs,const SVFFunctio
         CallGraphEdge* edge = new CallGraphEdge(caller,callee,CallGraphEdge::CallRetEdge, csId);
         edge->addInDirectCallSite(cs);
         addEdge(edge);
+        SVF::GraphDBClient::getInstance().addCallGraphEdge2db(dbConnection, edge, csId, "callGraph");
         callinstToCallGraphEdgesMap[cs].insert(edge);
     }
 }
