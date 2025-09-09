@@ -409,7 +409,6 @@ public:
     /// Whether we have already created this call graph edge
     CallGraphEdge* hasGraphEdge(CallGraphNode* src, CallGraphNode* dst,
                                 CallGraphEdge::CEDGEK kind, CallSiteID csId) const;
-
     /// Get call graph edge via nodes
     CallGraphEdge* getGraphEdge(CallGraphNode* src, CallGraphNode* dst,
                                 CallGraphEdge::CEDGEK kind, CallSiteID csId);
