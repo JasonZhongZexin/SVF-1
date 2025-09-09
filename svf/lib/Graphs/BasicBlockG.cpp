@@ -1,6 +1,7 @@
 #include "Graphs/BasicBlockG.h"
 #include "Graphs/ICFGNode.h"
 #include "SVFIR/GraphDBClient.h"
+#include "Util/Options.h"
 
 using namespace SVF;
 const std::string BasicBlockEdge::toString() const
@@ -23,3 +24,18 @@ const std::string SVFBasicBlock::toString() const
     rawstr << "\n----------------------------------------\n";
     return rawstr.str();
 }
+
+SVFBasicBlock* BasicBlockGraph::addBasicBlock(const std::string& bbname)
+    {   
+        id++;
+        int nodeId = id;
+        int extID = GraphDBClient::getInstance().getExternalID();
+        if (Options::ReadFromDB() && extID != -1)
+        {
+            nodeId = extID;
+        } 
+        SVFBasicBlock* bb = new SVFBasicBlock(nodeId, nullptr);
+        addGNode(nodeId, bb);
+        bb->setName(bbname);
+        return bb;
+    }

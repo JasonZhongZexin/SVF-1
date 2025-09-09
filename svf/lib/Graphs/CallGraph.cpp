@@ -186,19 +186,6 @@ CallGraphEdge* CallGraph::hasGraphEdge(CallGraphNode* src,
         return nullptr;
 }
 
-CallGraphEdge* CallGraph::hasGraphEdge(CallGraphEdge* cgEdge)
-{
-    CallGraphEdge* outEdge = cgEdge->getSrcNode()->hasOutgoingEdge(cgEdge);
-    CallGraphEdge* inEdge = cgEdge->getDstNode()->hasIncomingEdge(cgEdge);
-    if (outEdge && inEdge)
-    {
-        assert(outEdge == inEdge && "edges not match");
-        return outEdge;
-    }
-    else
-        return nullptr;
-}
-
 /*!
  * get PTACallGraph edge via nodes
  */
@@ -239,13 +226,6 @@ void CallGraph::addIndirectCallGraphEdge(const CallICFGNode* cs,const FunObjVar*
     }
 }
 
-void CallGraph::addIndirectCallGraphEdgeFromDB(CallGraphEdge* cgEdge)
-{
-    if (!hasGraphEdge(cgEdge))
-    {
-        addEdge(cgEdge);
-    }
-}
 
 /*!
  * Get all callsite invoking this callee
@@ -377,20 +357,19 @@ void CallGraph::view()
 /*!
  * Add call graph node
  */
-void CallGraph::addCallGraphNode(const FunObjVar* fun)
+CallGraphNode* CallGraph::addCallGraphNode(const FunObjVar* fun)
 {
     NodeID id  = callGraphNodeNum;
+    int extID = GraphDBClient::getInstance().getExternalID();
+    if (Options::ReadFromDB() && extID != -1)
+    {
+        id = extID;
+    }
     CallGraphNode*callGraphNode = new CallGraphNode(id, fun);
     addGNode(id, callGraphNode);
     funToCallGraphNodeMap[callGraphNode->getFunction()] = callGraphNode;
     callGraphNodeNum++;
-}
-
-void CallGraph::addCallGraphNodeFromDB(CallGraphNode* cgNode)
-{
-    addGNode(cgNode->getId(), cgNode);
-    funToCallGraphNodeMap[cgNode->getFunction()] = cgNode;
-    callGraphNodeNum++;
+    return callGraphNode;
 }
 
 const CallGraphNode* CallGraph::getCallGraphNode(const std::string& name) const
@@ -422,14 +401,25 @@ void CallGraph::addDirectCallGraphEdge(const CallICFGNode* cs,const FunObjVar* c
     }
 }
 
-void CallGraph::addDirectCallGraphEdgeFromDB(CallGraphEdge* cgEdge)
+CallSiteID CallGraph::addCallSite(const CallICFGNode* cs, const FunObjVar* callee)
 {
-    if (!hasGraphEdge(cgEdge))
+    std::pair<const CallICFGNode*, const FunObjVar*> newCS(std::make_pair(cs, callee));
+    CallSiteToIdMap::const_iterator it = csToIdMap.find(newCS);
+    // assert(it == csToIdMap.end() && "cannot add a callsite twice");
+    int extCSID = GraphDBClient::getInstance().getExternalCSID();
+    if (it == csToIdMap.end())
     {
-        addEdge(cgEdge);
-    }   
+        CallSiteID id = totalCallSiteNum++;
+        if (Options::ReadFromDB() && extCSID != -1)
+        {
+            id = extCSID;
+        }
+        csToIdMap.insert(std::make_pair(newCS, id));
+        idToCSMap.insert(std::make_pair(id, newCS));
+        return id;
+    }
+    return it->second;
 }
-
 namespace SVF
 {
 

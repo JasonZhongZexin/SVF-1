@@ -51,12 +51,30 @@ private:
     }
 
 public:
+    int externID = -1;
+    inline void setExternalID(int id)
+    {
+        externID = id;
+    }
+    inline int getExternalID()
+    {
+        return externID;
+    }
     static GraphDBClient& getInstance()
     {
         static GraphDBClient instance;
         return instance;
     }
 
+    int externalCSID = -1;
+    inline void setExternalCSID(int id)
+    {
+        externalCSID = id;
+    }
+    inline int getExternalCSID()
+    {
+        return externalCSID;
+    }
     GraphDBClient(const GraphDBClient&) = delete;
     GraphDBClient& operator=(const GraphDBClient&) = delete;
 
@@ -149,7 +167,7 @@ public:
 
     // read CallGraph Nodes & CallGraphEdge from DB
     CallGraph* buildCallGraphFromDB(lgraph::RpcClient* connection, const std::string& dbname, SVFIR* pag);
-    CallGraphNode* parseCallGraphNodeFromDB(const cJSON* node);
+    void parseCallGraphNodeFromDB(const cJSON* node,  CallGraph* callGraph);
     CallGraphEdge* parseCallGraphEdgeFromDB(const cJSON* edge, SVFIR* pag, CallGraph* callGraph);
     void readCallGraphNodesFromDB(lgraph::RpcClient* connection, const std::string& dbname, CallGraph* callGraph);
     void readCallGraphEdgesFromDB(lgraph::RpcClient* connection, const std::string& dbname, SVFIR* pag, CallGraph* callGraph);

@@ -66,7 +66,6 @@ public:
     //@}
 
     virtual const std::string toString() const;
-
 };
 
 
@@ -310,27 +309,12 @@ private:
     NodeID id{0};
 public:
     /// Constructor
-    BasicBlockGraph(): GenericBasicBlockGraphTy()
+    BasicBlockGraph()
     {
 
     }
 
-
-    SVFBasicBlock* addBasicBlock(const std::string& bbname)
-    {
-        id++;
-        SVFBasicBlock* bb = new SVFBasicBlock(id, nullptr);
-        addGNode(id, bb);
-        bb->setName(bbname);
-        return bb;
-    }
-
-    void addBasicBlockFromDB(SVFBasicBlock* bb)
-    {
-        id++;
-        addGNode(bb->getId(), bb);
-    }
-
+    SVFBasicBlock* addBasicBlock(const std::string& bbname);
 };
 }
 
