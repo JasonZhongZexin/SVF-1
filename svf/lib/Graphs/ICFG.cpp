@@ -31,7 +31,6 @@
 #include "Graphs/CallGraph.h"
 #include "SVFIR/SVFIR.h"
 #include <Util/Options.h>
-#include "SVFIR/GraphDBClient.h"
 
 using namespace SVF;
 using namespace SVFUtil;
@@ -150,7 +149,6 @@ const std::string CallICFGNode::toString() const
     return rawstr.str();
 }
 
-
 const std::string RetICFGNode::toString() const
 {
     std::string str;
@@ -184,7 +182,6 @@ const std::string IntraCFGEdge::toString() const
     return rawstr.str();
 }
 
-
 const std::string CallCFGEdge::toString() const
 {
     std::string str;
@@ -202,7 +199,6 @@ const std::string RetCFGEdge::toString() const
     rawstr << getDstID() << " <-- ICFGNode" << getSrcID() << "]\t CallSite: " << getDstNode()->toString() << "\t";
     return rawstr.str();
 }
-
 
 /// Return call ICFGNode at the callsite
 const CallICFGNode* RetCFGEdge::getCallSite() const

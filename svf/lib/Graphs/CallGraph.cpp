@@ -226,7 +226,6 @@ void CallGraph::addIndirectCallGraphEdge(const CallICFGNode* cs,const FunObjVar*
     }
 }
 
-
 /*!
  * Get all callsite invoking this callee
  */
