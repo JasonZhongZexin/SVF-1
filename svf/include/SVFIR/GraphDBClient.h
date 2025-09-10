@@ -149,12 +149,12 @@ public:
     ICFG* buildICFGFromDB(lgraph::RpcClient* connection, const std::string& dbname, SVFIR* pag);
     /// ICFGNodes
     void readICFGNodesFromDB(lgraph::RpcClient* connection, const std::string& dbname, std::string nodeType, ICFG* icfg, SVFIR* pag);
-    ICFGNode* parseGlobalICFGNodeFromDBResult(const cJSON* node);
-    ICFGNode* parseFunEntryICFGNodeFromDBResult(const cJSON* node, SVFIR* pag);
-    ICFGNode* parseFunExitICFGNodeFromDBResult(const cJSON* node, SVFIR* pag);
+    ICFGNode* parseGlobalICFGNodeFromDBResult(const cJSON* node, ICFG* icfg);
+    ICFGNode* parseFunEntryICFGNodeFromDBResult(const cJSON* node, SVFIR* pag, ICFG* icfg);
+    ICFGNode* parseFunExitICFGNodeFromDBResult(const cJSON* node, SVFIR* pag, ICFG* icfg);
     ICFGNode* parseRetICFGNodeFromDBResult(const cJSON* node, SVFIR* pag);
-    ICFGNode* parseIntraICFGNodeFromDBResult(const cJSON* node, SVFIR* pag);
-    ICFGNode* parseCallICFGNodeFromDBResult(const cJSON* node, SVFIR* pag);
+    ICFGNode* parseIntraICFGNodeFromDBResult(const cJSON* node, SVFIR* pag, ICFG* icfg);
+    ICFGNode* parseCallICFGNodeFromDBResult(const cJSON* node, SVFIR* pag,  ICFG* icfg);
     void parseSVFStmtsForICFGNodeFromDBResult(SVFIR* pag);
     void updateRetPE4RetCFGEdge();
     void updateCallPEs4CallCFGEdge();

@@ -117,7 +117,7 @@ class IntraCFGEdge : public ICFGEdge
     friend class ICFG;
     friend class SVFIRBuilder;
     friend class GraphDBClient;
-
+    
 public:
     /// Constructor
     IntraCFGEdge(ICFGNode* s, ICFGNode* d)
@@ -275,8 +275,8 @@ public:
     }
     //@}
     virtual const std::string toString() const;
-
 };
+
 } // End namespace SVF
 
 #endif /* ICFGEdge_H_ */

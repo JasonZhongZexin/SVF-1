@@ -199,7 +199,6 @@ public:
     {
         return "Global ICFGNode";
     }
-
 };
 
 /*!
@@ -210,14 +209,6 @@ class IntraICFGNode : public ICFGNode
     friend class SVFIRWriter;
     friend class SVFIRReader;
     friend class GraphDBClient;
-
-protected:
-    IntraICFGNode(NodeID id, const SVFBasicBlock* bb, const FunObjVar* funObjVar, bool isReturn): ICFGNode(id, IntraBlock),isRet(isReturn)
-    {
-
-        this->fun = funObjVar;
-        this->bb = bb;
-    }
 
 private:
     bool isRet;
@@ -256,7 +247,6 @@ public:
     {
         return isRet;
     }
-
 };
 
 class InterICFGNode : public ICFGNode
@@ -305,15 +295,6 @@ class FunEntryICFGNode : public InterICFGNode
     friend class SVFIRWriter;
     friend class SVFIRReader;
     friend class GraphDBClient;
-
-protected:
-    FunEntryICFGNode(NodeID id, const FunObjVar* f, SVFBasicBlock* bb)
-    : InterICFGNode(id, FunEntryBlock)
-    {
-        this->fun = f;
-        this->bb = bb;
-    }
-
 public:
     typedef std::vector<const SVFVar *> FormalParmNodeVec;
 private:
@@ -386,14 +367,6 @@ class FunExitICFGNode : public InterICFGNode
     friend class SVFIRReader;
     friend class GraphDBClient;
 
-protected:
-    FunExitICFGNode(NodeID id, const FunObjVar* f, SVFBasicBlock* bb) 
-    : InterICFGNode(id, FunExitBlock), formalRet(nullptr)
-    {
-        this->fun = f;
-        this->bb = bb;
-    }
-
 private:
     const SVFVar *formalRet;
 
@@ -452,7 +425,6 @@ public:
     const std::string toString() const override;
 
     const std::string getSourceLoc() const override;
-
 };
 
 /*!
@@ -480,19 +452,6 @@ protected:
 
     /// Constructor to create empty CallICFGNode (for SVFIRReader/deserialization)
     CallICFGNode(NodeID id) : InterICFGNode(id, FunCallBlock), ret{} {}
-    
-    CallICFGNode(NodeID id, const SVFBasicBlock* bb, const SVFType* type,
-                 const FunObjVar* fun, const FunObjVar* cf, const RetICFGNode* ret, 
-                 bool iv, bool ivc, s32_t vfi, SVFVar* vtabPtr, const std::string& fnv)
-        : InterICFGNode(id, FunCallBlock), ret(ret), calledFunc(cf),
-          isvararg(iv), isVirCallInst(ivc), vtabPtr(vtabPtr),
-          virtualFunIdx(vfi), funNameOfVcall(fnv)
-    {
-        this->fun = fun;
-        this->bb = bb;
-        this->type = type;
-    }
-                
 
 public:
     CallICFGNode(NodeID id, const SVFBasicBlock* b, const SVFType* ty,
@@ -750,7 +709,6 @@ public:
     {
         return "RetICFGNode: " + ICFGNode::getSourceLoc();
     }
-
 };
 
 } // End namespace SVF

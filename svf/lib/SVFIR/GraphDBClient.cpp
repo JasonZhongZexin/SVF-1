@@ -3021,35 +3021,19 @@ void GraphDBClient::readICFGNodesFromDB(lgraph::RpcClient* connection, const std
                 ICFGNode* icfgNode = nullptr;
                 if (nodeType == "GlobalICFGNode")
                 {
-                    icfgNode = parseGlobalICFGNodeFromDBResult(node);
-                    if (nullptr != icfgNode)
-                    {
-                        icfg->addGlobalICFGNodeFromDB(SVFUtil::cast<GlobalICFGNode>(icfgNode));
-                    }
+                    icfgNode = parseGlobalICFGNodeFromDBResult(node, icfg);
                 }
                 else if (nodeType == "IntraICFGNode")
                 {
-                    icfgNode = parseIntraICFGNodeFromDBResult(node, pag);
-                    if (nullptr != icfgNode)
-                    {
-                        icfg->addIntraICFGNodeFromDB(SVFUtil::cast<IntraICFGNode>(icfgNode));
-                    }
+                    icfgNode = parseIntraICFGNodeFromDBResult(node, pag, icfg);
                 }
                 else if (nodeType == "FunEntryICFGNode")
                 {
-                    icfgNode = parseFunEntryICFGNodeFromDBResult(node, pag);
-                    if (nullptr != icfgNode)
-                    {
-                        icfg->addFunEntryICFGNodeFromDB(SVFUtil::cast<FunEntryICFGNode>(icfgNode));
-                    }
+                    icfgNode = parseFunEntryICFGNodeFromDBResult(node, pag, icfg);
                 }
                 else if (nodeType == "FunExitICFGNode")
                 {
-                    icfgNode = parseFunExitICFGNodeFromDBResult(node, pag);
-                    if (nullptr != icfgNode)
-                    {
-                        icfg->addFunExitICFGNodeFromDB(SVFUtil::cast<FunExitICFGNode>(icfgNode));
-                    }
+                    icfgNode = parseFunExitICFGNodeFromDBResult(node, pag, icfg);
                 }
                 else if (nodeType == "RetICFGNode")
                 {
@@ -3062,11 +3046,10 @@ void GraphDBClient::readICFGNodesFromDB(lgraph::RpcClient* connection, const std
                 }
                 else if (nodeType == "CallICFGNode")
                 {
-                    icfgNode = parseCallICFGNodeFromDBResult(node, pag);
+                    icfgNode = parseCallICFGNodeFromDBResult(node, pag, icfg);
                     if (nullptr != icfgNode)
                     {
                         CallICFGNode* callNode = SVFUtil::cast<CallICFGNode>(icfgNode);
-                        icfg->addCallICFGNodeFromDB(callNode);
                         if (callNode->isIndirectCall())
                         {
                             pag->addIndirectCallsites(callNode, callNode->getIndFunPtr()->getId());
@@ -3131,7 +3114,7 @@ void GraphDBClient::parseSVFStmtsForICFGNodeFromDBResult(SVFIR* pag)
     }
 }
 
-ICFGNode* GraphDBClient::parseGlobalICFGNodeFromDBResult(const cJSON* node)
+ICFGNode* GraphDBClient::parseGlobalICFGNodeFromDBResult(const cJSON* node, ICFG* icfg)
 {
     cJSON* data = cJSON_GetObjectItem(node, "node");
     if (!data)
@@ -3145,6 +3128,9 @@ ICFGNode* GraphDBClient::parseGlobalICFGNodeFromDBResult(const cJSON* node)
     int id = cJSON_GetObjectItem(properties,"id")->valueint;
 
     icfgNode = new GlobalICFGNode(id);
+    icfg->totalICFGNode++;
+    icfg->addICFGNode(icfgNode);
+    icfg->globalBlockNode = icfgNode;
     std::string svfStmtIds = cJSON_GetObjectItem(properties, "pag_edge_ids")->valuestring;
     if (!svfStmtIds.empty())
     {
@@ -3153,7 +3139,7 @@ ICFGNode* GraphDBClient::parseGlobalICFGNodeFromDBResult(const cJSON* node)
     return icfgNode;
 }
 
-ICFGNode* GraphDBClient::parseFunEntryICFGNodeFromDBResult(const cJSON* node, SVFIR* pag)
+ICFGNode* GraphDBClient::parseFunEntryICFGNodeFromDBResult(const cJSON* node, SVFIR* pag, ICFG* icfg)
 {
     cJSON* data = cJSON_GetObjectItem(node, "node");
     if (!data)
@@ -3177,11 +3163,9 @@ ICFGNode* GraphDBClient::parseFunEntryICFGNodeFromDBResult(const cJSON* node, SV
         SVFUtil::outs() << "Warning: [parseFunEntryICFGNodeFromDBResult] No matching FunObjVar found for id: " << fun_obj_var_id << "\n";
     }
 
-    // parse FunEntryICFGNode bb
-    int bb_id = cJSON_GetObjectItem(properties, "bb_id")->valueint;
-    SVFBasicBlock* bb = funObjVar->getBasicBlockGraph()->getGNode(bb_id);
-
-    icfgNode = new FunEntryICFGNode(id, funObjVar, bb);
+    setExternalID(id);
+    icfgNode = icfg->addFunEntryICFGNode(funObjVar);
+    setExternalID(-1);
     std::string fpNodesStr = cJSON_GetObjectItem(properties, "fp_nodes")->valuestring;
     std::vector<u32_t> fpNodesIdVec = parseElements2Container<std::vector<u32_t>>(fpNodesStr);
     for (auto fpNodeId: fpNodesIdVec)
@@ -3214,7 +3198,7 @@ ICFGNode* GraphDBClient::parseFunEntryICFGNodeFromDBResult(const cJSON* node, SV
     return icfgNode;
 }
 
-ICFGNode* GraphDBClient::parseFunExitICFGNodeFromDBResult(const cJSON* node, SVFIR* pag)
+ICFGNode* GraphDBClient::parseFunExitICFGNodeFromDBResult(const cJSON* node, SVFIR* pag, ICFG* icfg)
 {
     cJSON* data = cJSON_GetObjectItem(node, "node");
     if (!data)
@@ -3239,11 +3223,14 @@ ICFGNode* GraphDBClient::parseFunExitICFGNodeFromDBResult(const cJSON* node, SVF
         SVFUtil::outs() << "Warning: [parseFunExitICFGNodeFromDBResult] No matching FunObjVar found for id: " << fun_obj_var_id << "\n";
     }
 
-    // parse FunExitICFGNode bb
+        // parse FunExitICFGNode bb
     int bb_id = cJSON_GetObjectItem(properties, "bb_id")->valueint;
     SVFBasicBlock* bb = funObjVar->getBasicBlockGraph()->getGNode(bb_id);
 
-    icfgNode = new FunExitICFGNode(id, funObjVar, bb);
+    funObjVar->updateExitBlock(bb);
+    setExternalID(id);
+    icfgNode = icfg->addFunExitICFGNode(funObjVar);
+    setExternalID(-1);
     int formal_ret_node_id = cJSON_GetObjectItem(properties, "formal_ret_node_id")->valueint;
     if (formal_ret_node_id != -1)
     {
@@ -3275,7 +3262,7 @@ ICFGNode* GraphDBClient::parseFunExitICFGNodeFromDBResult(const cJSON* node, SVF
     return icfgNode;
 }
 
-ICFGNode* GraphDBClient::parseIntraICFGNodeFromDBResult(const cJSON* node, SVFIR* pag)
+ICFGNode* GraphDBClient::parseIntraICFGNodeFromDBResult(const cJSON* node, SVFIR* pag, ICFG* icfg)
 {
     cJSON* data = cJSON_GetObjectItem(node, "node");
     if (!data)
@@ -3308,17 +3295,9 @@ ICFGNode* GraphDBClient::parseIntraICFGNodeFromDBResult(const cJSON* node, SVFIR
     bool is_return = cJSON_IsTrue(cJSON_GetObjectItem(properties, "is_return"));
 
     
-    icfgNode = new IntraICFGNode(id, bb, funObjVar, is_return);
-
-    // // add this ICFGNode to its BasicBlock
-    // if (nullptr != bb)
-    // {
-    //     bb->addICFGNode(icfgNode);
-    // }
-    // else
-    // {
-    //     SVFUtil::outs() << "Warning: [parseIntraICFGNodeFromDBResult] No matching BasicBlock found for id: " << bb_id << "\n";
-    // }
+    setExternalID(id);
+    icfgNode = icfg->addIntraICFGNode(bb, is_return);
+    setExternalID(-1);
     
     std::string svfStmtIds = cJSON_GetObjectItem(properties, "pag_edge_ids")->valuestring;
     if (!svfStmtIds.empty())
@@ -3385,16 +3364,6 @@ ICFGNode* GraphDBClient::parseRetICFGNodeFromDBResult(const cJSON* node, SVFIR* 
         }
     }
 
-    // // add this ICFGNode to its BasicBlock
-    // if (nullptr != bb)
-    // {
-    //     bb->addICFGNode(icfgNode);
-    // }
-    // else
-    // {
-    //     SVFUtil::outs() << "Warning: [parseRetICFGNodeFromDBResult] No matching BasicBlock found for id: " << bb_id << "\n";
-    // }
-
     std::string svfStmtIds = cJSON_GetObjectItem(properties, "pag_edge_ids")->valuestring;
     if (!svfStmtIds.empty())
     {
@@ -3403,7 +3372,7 @@ ICFGNode* GraphDBClient::parseRetICFGNodeFromDBResult(const cJSON* node, SVFIR* 
     return icfgNode;
 }
 
-ICFGNode* GraphDBClient::parseCallICFGNodeFromDBResult(const cJSON* node, SVFIR* pag)
+ICFGNode* GraphDBClient::parseCallICFGNodeFromDBResult(const cJSON* node, SVFIR* pag, ICFG* icfg)
 {
     cJSON* data = cJSON_GetObjectItem(node, "node");
     if (!data)
@@ -3491,8 +3460,11 @@ ICFGNode* GraphDBClient::parseCallICFGNodeFromDBResult(const cJSON* node, SVFIR*
     }
      
     // create CallICFGNode Instance
-    icfgNode = new CallICFGNode(id, bb, type, funObjVar, calledFunc, retICFGNode,
-        is_vararg, is_vir_call_inst, virtualFunIdx, vtabPtr, fun_name_of_v_call);
+    setExternalID(id);
+    icfgNode = icfg->addCallICFGNode(bb, type, calledFunc, is_vararg, is_vir_call_inst, virtualFunIdx, fun_name_of_v_call);
+    icfgNode->setVtablePtr(vtabPtr);
+    icfgNode->setRetICFGNode(retICFGNode);
+    setExternalID(-1);
 
     int indFunPtrId = cJSON_GetObjectItem(properties, "ind_fun_ptr_var_id")->valueint;
     if (indFunPtrId != -1)
@@ -3534,16 +3506,6 @@ ICFGNode* GraphDBClient::parseCallICFGNodeFromDBResult(const cJSON* node, SVFIR*
     {
         retICFGNode->addCallBlockNodeFromDB(icfgNode);
     }
-
-    // // add this ICFGNode to its BasicBlock
-    // if (nullptr != bb)
-    // {
-    //     bb->addICFGNode(icfgNode);
-    // }
-    // else
-    // {
-    //     SVFUtil::outs() << "Warning: [parseCallICFGNodeFromDBResult] No matching BasicBlock found for id: " << bb_id << "\n";
-    // }
     
     std::string svfStmtIds = cJSON_GetObjectItem(properties, "pag_edge_ids")->valuestring;
     if (!svfStmtIds.empty())
