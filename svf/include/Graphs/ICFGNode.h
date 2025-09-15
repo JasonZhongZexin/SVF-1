@@ -142,6 +142,7 @@ public:
         return isICFGNodeKinds(node->getNodeKind());
     }
 
+
     std::string sourceLocToDBString() const
     {
         std::string sourceLoc = "";
@@ -208,8 +209,6 @@ class IntraICFGNode : public ICFGNode
 {
     friend class SVFIRWriter;
     friend class SVFIRReader;
-    friend class GraphDBClient;
-
 private:
     bool isRet;
 
@@ -294,7 +293,7 @@ class FunEntryICFGNode : public InterICFGNode
 {
     friend class SVFIRWriter;
     friend class SVFIRReader;
-    friend class GraphDBClient;
+
 public:
     typedef std::vector<const SVFVar *> FormalParmNodeVec;
 private:
@@ -355,7 +354,6 @@ public:
     const std::string toString() const override;
 
     const std::string getSourceLoc() const override;
-
 };
 
 /*!
@@ -365,7 +363,6 @@ class FunExitICFGNode : public InterICFGNode
 {
     friend class SVFIRWriter;
     friend class SVFIRReader;
-    friend class GraphDBClient;
 
 private:
     const SVFVar *formalRet;
@@ -434,7 +431,6 @@ class CallICFGNode : public InterICFGNode
 {
     friend class SVFIRWriter;
     friend class SVFIRReader;
-    friend class GraphDBClient;
 
 public:
     typedef std::vector<const ValVar *> ActualParmNodeVec;

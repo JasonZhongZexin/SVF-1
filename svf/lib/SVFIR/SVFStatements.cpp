@@ -51,7 +51,16 @@ SVFStmt::SVFStmt(SVFVar* s, SVFVar* d, GEdgeFlag k, bool real) :
 {
     if(real)
     {
-        edgeId = SVFIR::getPAG()->getTotalEdgeNum();
+        int extID = GraphDBClient::getInstance().getExternalID();
+        if (Options::ReadFromDB() && extID != -1)
+        {
+            edgeId = extID;
+        } 
+        else 
+        {
+            edgeId = SVFIR::getPAG()->getTotalEdgeNum();
+            
+        }
         SVFIR::getPAG()->incEdgeNum();
     }
 }

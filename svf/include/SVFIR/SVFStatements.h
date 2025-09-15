@@ -128,6 +128,11 @@ protected:
         var2LabelMap.emplace(var, label);
     }
 
+    inline void setStmtValue(const SVFVar* stmtValue)
+    {
+        value = stmtValue;
+    }
+
 public:
     // static u32_t totalEdgeNum; ///< Total edge number
 

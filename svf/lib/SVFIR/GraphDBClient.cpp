@@ -1413,7 +1413,9 @@ void GraphDBClient::readPAGEdgesFromDB(lgraph::RpcClient* connection, const std:
     
                 if (edgeType == "AddrStmt")
                 {
-                    stmt = new AddrStmt(srcNode, dstNode, edgeFlag, edge_id, value, icfgNode);
+                    setExternalID(edge_id);
+                    stmt = pag->addAddrStmt(src_id, dst_id);
+                    setExternalID(-1);
                     std::string arr_size = cJSON_GetObjectItem(properties,"arr_size")->valuestring;
                     AddrStmt* addrStmt = SVFUtil::cast<AddrStmt>(stmt);
                     if (!arr_size.empty())
@@ -1432,14 +1434,13 @@ void GraphDBClient::readPAGEdgesFromDB(lgraph::RpcClient* connection, const std:
                             }
                         }
                     }
-                    pag->addAddrStmtFromDB(addrStmt);
                 }
                 else if (edgeType == "CopyStmt")
                 {
                     int copy_kind = cJSON_GetObjectItem(properties,"copy_kind")->valueint; 
-                    stmt = new CopyStmt(srcNode, dstNode, edgeFlag, edge_id, value, copy_kind, icfgNode );
-                    CopyStmt* copyStmt = SVFUtil::cast<CopyStmt>(stmt);
-                    pag->addCopyStmtFromDB(copyStmt);
+                    setExternalID(edge_id);
+                    stmt = pag->addCopyStmt(src_id, dst_id, static_cast<CopyStmt::CopyKind>(copy_kind));
+                    setExternalID(-1);
                 }
                 else if (edgeType == "StoreStmt")
                 {
@@ -1449,9 +1450,9 @@ void GraphDBClient::readPAGEdgesFromDB(lgraph::RpcClient* connection, const std:
                 }
                 else if (edgeType == "LoadStmt")
                 {
-                    stmt = new LoadStmt(srcNode, dstNode, edgeFlag, edge_id, value, icfgNode);
-                    LoadStmt* loadStmt = SVFUtil::cast<LoadStmt>(stmt);
-                    pag->addLoadStmtFromDB(loadStmt);
+                    setExternalID(edge_id);
+                    stmt = pag->addLoadStmt(src_id, dst_id);
+                    setExternalID(-1);
                 }
                 else if (edgeType == "GepStmt")
                 {
@@ -1708,6 +1709,8 @@ void GraphDBClient::readPAGEdgesFromDB(lgraph::RpcClient* connection, const std:
                     pag->addBranchStmtFromDB(branchStmt, srcNode, dstNode);
                 }
                 stmt->setBasicBlock(bb);
+                stmt->setStmtValue(value);
+                stmt->setICFGNode(icfgNode);
                 stmt->setCallEdgeLabelCounter(static_cast<u64_t>(call_edge_label_counter));
                 stmt->setStoreEdgeLabelCounter(static_cast<u64_t>(store_edge_label_counter));
                 stmt->setMultiOpndLabelCounter(static_cast<u64_t>(multi_opnd_label_counter));

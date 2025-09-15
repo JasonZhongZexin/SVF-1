@@ -74,14 +74,6 @@ AddrStmt* SVFIR::addAddrStmt(NodeID src, NodeID dst)
         return addrPE;
     }
 }
-void SVFIR::addAddrStmtFromDB(AddrStmt* edge)
-{
-    if(!hasEdge(edge, SVFStmt::Addr))
-    {
-        addToStmt2TypeMap(edge);
-        addEdge(edge->getRHSVar(),edge->getLHSVar(), edge);
-    }
-}
 
 /*!
  * Add Copy edge
@@ -98,15 +90,6 @@ CopyStmt* SVFIR::addCopyStmt(NodeID src, NodeID dst, CopyStmt::CopyKind type)
         addToStmt2TypeMap(copyPE);
         addEdge(srcNode,dstNode, copyPE);
         return copyPE;
-    }
-}
-
-void SVFIR::addCopyStmtFromDB(CopyStmt* edge)
-{
-    if(!hasEdge(edge, SVFStmt::Copy))
-    {
-        addToStmt2TypeMap(edge);
-        addEdge(edge->getRHSVar(),edge->getLHSVar(), edge);
     }
 }
 
@@ -304,15 +287,6 @@ LoadStmt* SVFIR::addLoadStmt(NodeID src, NodeID dst)
         addToStmt2TypeMap(loadPE);
         addEdge(srcNode,dstNode, loadPE);
         return loadPE;
-    }
-}
-
-void SVFIR::addLoadStmtFromDB(LoadStmt* edge)
-{
-    if(!hasEdge(edge, SVFStmt::Load))
-    {
-        addToStmt2TypeMap(edge);
-        addEdge(edge->getRHSVar(),edge->getLHSVar(), edge);
     }
 }
 

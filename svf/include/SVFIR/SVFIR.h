@@ -874,10 +874,8 @@ private:
     //@{
     /// Add Address edge
     AddrStmt* addAddrStmt(NodeID src, NodeID dst);
-    void addAddrStmtFromDB(AddrStmt* edge);
     /// Add Copy edge
     CopyStmt* addCopyStmt(NodeID src, NodeID dst, CopyStmt::CopyKind type);
-    void addCopyStmtFromDB(CopyStmt* edge);
 
     /// Add phi node information
     PhiStmt*  addPhiStmt(NodeID res, NodeID opnd, const ICFGNode* pred);
