@@ -32,6 +32,7 @@
 #include "SVFIR/SVFIR.h"
 #include "Util/Options.h"
 #include "Util/SVFUtil.h"
+#include "SVFIR/GraphDBClient.h"
 #include <sstream>
 
 using namespace SVF;
@@ -355,13 +356,19 @@ void CallGraph::view()
 /*!
  * Add call graph node
  */
-void CallGraph::addCallGraphNode(const FunObjVar* fun)
+CallGraphNode* CallGraph::addCallGraphNode(const FunObjVar* fun)
 {
     NodeID id  = callGraphNodeNum;
+    int extID = GraphDBClient::getInstance().getExternalID();
+    if (Options::ReadFromDB() && extID != -1)
+    {
+        id = extID;
+    }
     CallGraphNode*callGraphNode = new CallGraphNode(id, fun);
     addGNode(id, callGraphNode);
     funToCallGraphNodeMap[callGraphNode->getFunction()] = callGraphNode;
     callGraphNodeNum++;
+    return callGraphNode;
 }
 
 const CallGraphNode* CallGraph::getCallGraphNode(const std::string& name) const
@@ -393,6 +400,25 @@ void CallGraph::addDirectCallGraphEdge(const CallICFGNode* cs,const FunObjVar* c
     }
 }
 
+CallSiteID CallGraph::addCallSite(const CallICFGNode* cs, const FunObjVar* callee)
+{
+    std::pair<const CallICFGNode*, const FunObjVar*> newCS(std::make_pair(cs, callee));
+    CallSiteToIdMap::const_iterator it = csToIdMap.find(newCS);
+    // assert(it == csToIdMap.end() && "cannot add a callsite twice");
+    int extCSID = GraphDBClient::getInstance().getExternalCSID();
+    if (it == csToIdMap.end())
+    {
+        CallSiteID id = totalCallSiteNum++;
+        if (Options::ReadFromDB() && extCSID != -1)
+        {
+            id = extCSID;
+        }
+        csToIdMap.insert(std::make_pair(newCS, id));
+        idToCSMap.insert(std::make_pair(id, newCS));
+        return id;
+    }
+    return it->second;
+}
 namespace SVF
 {
 

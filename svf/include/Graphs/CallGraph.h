@@ -224,6 +224,20 @@ public:
     {
         return node->getNodeKind() == CallNodeKd;
     }
+
+    std::string sourceLocToDBString() const
+    {
+        std::string sourceLoc = "";
+        if (!getSourceLoc().empty())
+        {
+            sourceLoc = ", source_loc: '" + getSourceLoc() + "'";
+        }
+        else
+        {
+            sourceLoc = ", source_loc: ''";
+        }
+        return sourceLoc;
+    }
     //@}
 };
 
@@ -233,6 +247,8 @@ public:
 typedef GenericGraph<CallGraphNode, CallGraphEdge> GenericPTACallGraphTy;
 class CallGraph : public GenericPTACallGraphTy
 {
+    friend class GraphDBClient;
+
 
 public:
     typedef CallGraphEdge::CallGraphEdgeSet CallGraphEdgeSet;
@@ -273,20 +289,7 @@ protected:
 
 protected:
     /// Add CallSiteID
-    inline CallSiteID addCallSite(const CallICFGNode* cs, const FunObjVar* callee)
-    {
-        std::pair<const CallICFGNode*, const FunObjVar*> newCS(std::make_pair(cs, callee));
-        CallSiteToIdMap::const_iterator it = csToIdMap.find(newCS);
-        //assert(it == csToIdMap.end() && "cannot add a callsite twice");
-        if(it == csToIdMap.end())
-        {
-            CallSiteID id = totalCallSiteNum++;
-            csToIdMap.insert(std::make_pair(newCS, id));
-            idToCSMap.insert(std::make_pair(id, newCS));
-            return id;
-        }
-        return it->second;
-    }
+    CallSiteID addCallSite(const CallICFGNode* cs, const FunObjVar* callee);
 
     /// Add call graph edge
     inline void addEdge(CallGraphEdge* edge)
@@ -352,7 +355,7 @@ public:
     /// Add direct call edges
     void addDirectCallGraphEdge(const CallICFGNode* call, const FunObjVar* callerFun, const FunObjVar* calleeFun);
 
-    void addCallGraphNode(const FunObjVar* fun);
+    CallGraphNode* addCallGraphNode(const FunObjVar* fun);
 
     /// Get call graph node
     //@{

@@ -282,6 +282,8 @@ endif()
 # SVF core definitions
 # =================================================================================
 
+# Add the tugraph rpc library to all targets of SVF
+find_library(LGRAPH_CPP_CLIENT_LIBRARIES lgraph_client_cpp_rpc REQUIRED PATHS /usr/local/lib)
 add_subdirectory(svf)
 add_subdirectory(svf-llvm)
 

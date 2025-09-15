@@ -143,6 +143,19 @@ public:
     }
 
 
+    std::string sourceLocToDBString() const
+    {
+        std::string sourceLoc = "";
+        if (getSourceLoc().empty() == false)
+        {
+            sourceLoc = ", source_loc: '" + getSourceLoc() + "'";
+        }
+        else
+        {
+            sourceLoc = ", source_loc: ''";
+        }
+        return sourceLoc;
+    }
 
 protected:
     const FunObjVar* fun;
@@ -265,6 +278,7 @@ public:
     {
         return isInterICFGNodeKind(node->getNodeKind());
     }
+
 
     //@}
 };
@@ -430,6 +444,7 @@ protected:
     SVFVar* vtabPtr;                /// virtual table pointer
     s32_t virtualFunIdx;            /// virtual function index of the virtual table(s) at a virtual call
     std::string funNameOfVcall;     /// the function name of this virtual call
+    const SVFVar* indFunPtr;
 
     /// Constructor to create empty CallICFGNode (for SVFIRReader/deserialization)
     CallICFGNode(NodeID id) : InterICFGNode(id, FunCallBlock), ret{} {}
@@ -583,6 +598,19 @@ public:
     {
         return "CallICFGNode: " + ICFGNode::getSourceLoc();
     }
+
+
+    inline void setIndFunPtr(const SVFVar* indFun)
+    {
+        assert(isIndirectCall() && "not a indirect call?");
+        indFunPtr = indFun;
+    }
+
+    inline const SVFVar* getIndFunPtr() const
+    {
+        assert(isIndirectCall() && "not a indirect call?");
+        return indFunPtr;
+    }
 };
 
 
@@ -593,6 +621,16 @@ class RetICFGNode : public InterICFGNode
 {
     friend class SVFIRWriter;
     friend class SVFIRReader;
+    friend class GraphDBClient;
+
+protected:
+    RetICFGNode(NodeID id, const SVFType* type, const SVFBasicBlock* bb, const FunObjVar* funObjVar) : 
+        InterICFGNode(id, FunRetBlock), actualRet(nullptr), callBlockNode(nullptr)
+    {
+        this->fun = funObjVar;
+        this->bb = bb;
+        this->type = type;
+    }
 
 private:
     const SVFVar *actualRet;
@@ -627,6 +665,11 @@ public:
     inline void addActualRet(const SVFVar *ar)
     {
         actualRet = ar;
+    }
+
+    inline void addCallBlockNodeFromDB(const CallICFGNode* cb)
+    {
+        callBlockNode = cb;
     }
 
     ///Methods for support type inquiry through isa, cast, and dyn_cast:
