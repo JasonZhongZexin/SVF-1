@@ -56,88 +56,103 @@ jobs:
           git lfs pull
           cd $GITHUB_WORKSPACE
           source ${{github.workspace}}/build.sh
-          export LD_LIBRARY_PATH=${{github.workspace}}/graphdb-lib:$LD_LIBRARY_PATH
 
       - name: ctest objtype inference
         working-directory: ${{github.workspace}}/Release-build
         run:
+          export LD_LIBRARY_PATH=${{github.workspace}}/graphdb-lib:$LD_LIBRARY_PATH
           ctest -R objtype -VV
 
       - name: ctest wpa
         working-directory: ${{github.workspace}}/Release-build
         run:
+          export LD_LIBRARY_PATH=${{github.workspace}}/graphdb-lib:$LD_LIBRARY_PATH
           ctest -R wpa_tests -VV
 
       - name: ctest dvf and mta
         working-directory: ${{github.workspace}}/Release-build
         run:
+          export LD_LIBRARY_PATH=${{github.workspace}}/graphdb-lib:$LD_LIBRARY_PATH
           ctest -R dvf_tests -VV
 
       - name: ctest andersen differential analysis
         working-directory: ${{github.workspace}}/Release-build
         run:
+          export LD_LIBRARY_PATH=${{github.workspace}}/graphdb-lib:$LD_LIBRARY_PATH
           ctest -R diff_tests-ander -VV
 
       - name: ctest flow-sensitive differential analysis
         working-directory: ${{github.workspace}}/Release-build
         run:
+          export LD_LIBRARY_PATH=${{github.workspace}}/graphdb-lib:$LD_LIBRARY_PATH
           ctest -R diff_tests-fs -VV
 
       - name: ctest Andersen file-write-read
         working-directory: ${{github.workspace}}/Release-build
         run:
+          export LD_LIBRARY_PATH=${{github.workspace}}/graphdb-lib:$LD_LIBRARY_PATH
           ctest -R diff_tests-wr-ander -VV
 
       - name: ctest mem_leak
         working-directory: ${{github.workspace}}/Release-build
         run:
+          export LD_LIBRARY_PATH=${{github.workspace}}/graphdb-lib:$LD_LIBRARY_PATH
           ctest -R mem_leak -VV
 
       - name: ctest double_free
         working-directory: ${{github.workspace}}/Release-build
         run:
+          export LD_LIBRARY_PATH=${{github.workspace}}/graphdb-lib:$LD_LIBRARY_PATH
           ctest -R double_free -VV
 
       - name: ctest ae_symabs
         working-directory: ${{github.workspace}}/Release-build
         run:
+          export LD_LIBRARY_PATH=${{github.workspace}}/graphdb-lib:$LD_LIBRARY_PATH
           ctest -R symabs -VV
 
       - name: ctest ae_assert
         working-directory: ${{github.workspace}}/Release-build
         run:
+          export LD_LIBRARY_PATH=${{github.workspace}}/graphdb-lib:$LD_LIBRARY_PATH
           ctest -R ae_assert_test -VV
 
       - name: ctest ae_overflow
         working-directory: ${{github.workspace}}/Release-build
         run:
+          export LD_LIBRARY_PATH=${{github.workspace}}/graphdb-lib:$LD_LIBRARY_PATH
           ctest -R ae_overflow_test -VV
 
       - name: ctest ae_null_deref
         working-directory: ${{github.workspace}}/Release-build
         run:
+          export LD_LIBRARY_PATH=${{github.workspace}}/graphdb-lib:$LD_LIBRARY_PATH
           ctest -R ae_nullptr_deref_tests -VV
 
       - name: ctest ae_recursion
         working-directory: ${{github.workspace}}/Release-build
         run:
+          export LD_LIBRARY_PATH=${{github.workspace}}/graphdb-lib:$LD_LIBRARY_PATH
           ctest -R ae_recursion_tests -VV
 
       - name: ctest cfl_tests
         working-directory: ${{github.workspace}}/Release-build
         run:
+          export LD_LIBRARY_PATH=${{github.workspace}}/graphdb-lib:$LD_LIBRARY_PATH
           ctest -R cfl_tests -VV
 
       - name: ctest performance tests on big cruxbc with file system diff tests
         working-directory: ${{github.workspace}}/Release-build
         if: runner.os == 'Linux' && matrix.sanitizer != 'address'
         run:
+          export LD_LIBRARY_PATH=${{github.workspace}}/graphdb-lib:$LD_LIBRARY_PATH
           ctest -R diff-perf-cruxbc-big -VV
 
       - name: ctest performance tests on small cruxbc with file system diff tests
         working-directory: ${{github.workspace}}/Release-build
         if: runner.os == 'Linux'
         run:
+          export LD_LIBRARY_PATH=${{github.workspace}}/graphdb-lib:$LD_LIBRARY_PATH
           ctest -R diff-perf-cruxbc-small -VV
 
       - name: create-coverage-report-and-remove-system-files
