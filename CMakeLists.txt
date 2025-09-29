@@ -283,6 +283,7 @@ endif()
 # =================================================================================
 
 # Add the tugraph rpc library to all targets of SVF
+include_directories(${CMAKE_SOURCE_DIR}/graphdb-lib/include)
 find_library(LGRAPH_CPP_CLIENT_LIBRARIES lgraph_client_cpp_rpc REQUIRED PATHS ${SVF_SOURCE_DIR}/graphdb-lib)
 add_subdirectory(svf)
 add_subdirectory(svf-llvm)
