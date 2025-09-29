@@ -31,6 +31,7 @@
 #include "Graphs/CallGraph.h"
 #include "SVFIR/SVFIR.h"
 #include <Util/Options.h>
+#include "SVFIR/GraphDBClient.h"
 
 using namespace SVF;
 using namespace SVFUtil;
@@ -480,6 +481,66 @@ void ICFG::updateCallGraph(CallGraph* callgraph)
         dump("icfg_final");
     }
 }
+
+IntraICFGNode* ICFG::addIntraICFGNode(const SVFBasicBlock* bb, bool isRet)
+{
+    int id = totalICFGNode++;
+    int extID = GraphDBClient::getInstance().getExternalID();
+    if (Options::ReadFromDB() && extID != -1)
+    {
+        id = extID;
+    }
+    IntraICFGNode* intraIcfgNode = new IntraICFGNode(id, bb, isRet);
+    addICFGNode(intraIcfgNode);
+    return intraIcfgNode;
+}
+
+CallICFGNode* ICFG::addCallICFGNode(const SVFBasicBlock* bb,
+                                             const SVFType* ty,
+                                             const FunObjVar* calledFunc,
+                                             bool isVararg, bool isvcall,
+                                             s32_t vcallIdx,
+                                             const std::string& funNameOfVcall)
+{
+    int id = totalICFGNode++;
+    int extID = GraphDBClient::getInstance().getExternalID();
+    if (Options::ReadFromDB() && extID != -1)
+    {
+        id = extID;
+    }
+    CallICFGNode* callICFGNode =
+        new CallICFGNode(id, bb, ty, calledFunc, isVararg, isvcall,
+                         vcallIdx, funNameOfVcall);
+    addICFGNode(callICFGNode);
+    return callICFGNode;
+}
+
+FunEntryICFGNode* ICFG::addFunEntryICFGNode(const FunObjVar* svfFunc)
+{
+    int id = totalICFGNode++;
+    int extID = GraphDBClient::getInstance().getExternalID();
+    if (Options::ReadFromDB() && extID != -1)
+    {
+        id = extID;
+    }
+    FunEntryICFGNode* sNode = new FunEntryICFGNode(id,svfFunc);
+    addICFGNode(sNode);
+    return FunToFunEntryNodeMap[svfFunc] = sNode;
+}
+
+FunExitICFGNode* ICFG::addFunExitICFGNode(const FunObjVar* svfFunc)
+{
+    int id = totalICFGNode++;
+    int extID = GraphDBClient::getInstance().getExternalID();
+    if (Options::ReadFromDB() && extID != -1)
+    {
+        id = extID;
+    }
+    FunExitICFGNode* sNode = new FunExitICFGNode(id, svfFunc);
+    addICFGNode(sNode);
+    return FunToFunExitNodeMap[svfFunc] = sNode;
+}
+
 
 /*!
  * GraphTraits specialization
