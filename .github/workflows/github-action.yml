@@ -51,7 +51,6 @@ jobs:
           if [ "$RUNNER_OS" == "Linux" ] && [ "${{matrix.sanitizer}}" == "" ]; then export SVF_COVERAGE=1; fi
           git clone "https://github.com/SVF-tools/Test-Suite.git";
           git clone https://github.com/JasonZhongZexin/graphdb-lib.git
-          sudo mv graphdb-lib/include/* /usr/local/include/
           git lfs install
           cd graphdb-lib
           git lfs pull
