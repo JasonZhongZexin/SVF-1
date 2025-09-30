@@ -48,7 +48,7 @@ using namespace SVF;
 using namespace SVFUtil;
 using namespace LLVMUtil;
 
-lgraph::RpcClient* dbConnection = SVF::GraphDBClient::getInstance().getConnection();
+lgraph::RpcClient* dbConnection = nullptr;
 
 /*!
  * Start building SVFIR here
@@ -68,6 +68,10 @@ SVFIR* SVFIRBuilder::build()
 
     if (Options::ReadFromDB())
     {
+        if (dbConnection == nullptr)
+        {
+            dbConnection = SVF::GraphDBClient::getInstance().getConnection();
+        }
         GraphDBClient::getInstance().readSVFTypesFromDB(dbConnection, "SVFType", pag);
         GraphDBClient::getInstance().initialSVFPAGNodesFromDB(dbConnection, "PAG",pag);
         GraphDBClient::getInstance().readBasicBlockGraphFromDB(dbConnection, "BasicBlockGraph");
