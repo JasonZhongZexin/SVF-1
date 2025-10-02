@@ -297,6 +297,7 @@ find_library(LGRAPH_CPP_CLIENT_LIBRARIES
     REQUIRED
     PATHS ${LGRAPH_LIB_PATH}
 )
+message(STATUS "LGRAPH_CPP_CLIENT_LIBRARIES = ${LGRAPH_CPP_CLIENT_LIBRARIES}")
 add_subdirectory(svf)
 add_subdirectory(svf-llvm)
 
