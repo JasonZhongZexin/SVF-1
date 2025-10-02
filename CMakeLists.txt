@@ -282,6 +282,22 @@ endif()
 # SVF core definitions
 # =================================================================================
 
+# Add the tugraph rpc library to all targets of SVF
+include_directories(${CMAKE_SOURCE_DIR}/graphdb-lib/include)
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
+    set(LGRAPH_LIB_PATH "${SVF_SOURCE_DIR}/graphdb-lib/x86Lib")
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64" OR CMAKE_SYSTEM_PROCESSOR MATCHES "arm64")
+    set(LGRAPH_LIB_PATH "${SVF_SOURCE_DIR}/graphdb-lib/armLib")
+else()
+    message(FATAL_ERROR "Unsupported architecture: ${CMAKE_SYSTEM_PROCESSOR}")
+endif()
+
+find_library(LGRAPH_CPP_CLIENT_LIBRARIES
+    lgraph_client_cpp_rpc
+    REQUIRED
+    PATHS ${LGRAPH_LIB_PATH}
+)
+message(STATUS "LGRAPH_CPP_CLIENT_LIBRARIES = ${LGRAPH_CPP_CLIENT_LIBRARIES}")
 add_subdirectory(svf)
 add_subdirectory(svf-llvm)
 

@@ -41,6 +41,7 @@
 #include "Graphs/CallGraph.h"
 #include "Util/Options.h"
 #include "Util/SVFUtil.h"
+#include "SVFIR/GraphDBClient.h"
 
 using namespace std;
 using namespace SVF;
@@ -62,6 +63,23 @@ SVFIR* SVFIRBuilder::build()
     {
         PAGBuilderFromFile fileBuilder(SVFIR::pagFileName());
         return fileBuilder.build();
+    }
+
+    if (Options::ReadFromDB())
+    {
+        GraphDBClient::getInstance().readSVFTypesFromDB("SVFType", pag);
+        GraphDBClient::getInstance().initialSVFPAGNodesFromDB("PAG",pag);
+        GraphDBClient::getInstance().readBasicBlockGraphFromDB("BasicBlockGraph");
+        ICFG* icfg = GraphDBClient::getInstance().buildICFGFromDB("ICFG", pag);
+        pag->icfg = icfg;
+        CallGraph* callGraph = GraphDBClient::getInstance().buildCallGraphFromDB("CallGraph",pag);
+        CHGraph* chg = new CHGraph();
+        pag->setCHG(chg);
+        pag->callGraph = callGraph;
+        GraphDBClient::getInstance().updatePAGNodesFromDB("PAG", pag);
+        GraphDBClient::getInstance().loadSVFPAGEdgesFromDB("PAG",pag);
+        GraphDBClient::getInstance().parseSVFStmtsForICFGNodeFromDBResult(pag);
+        return pag;
     }
 
     // If the SVFIR has been built before, then we return the unique SVFIR of the program
@@ -158,6 +176,15 @@ SVFIR* SVFIRBuilder::build()
     pag->initialiseCandidatePointers();
 
     pag->setNodeNumAfterPAGBuild(pag->getTotalNodeNum());
+
+    if (Options::Write2DB()) {
+        std::string dbname = "SVFType";
+        GraphDBClient::getInstance().insertSVFTypeNodeSet2db(&pag->getSVFTypes(), &pag->getStInfos(), dbname);
+        GraphDBClient::getInstance().insertPAG2db(pag);   
+        GraphDBClient::getInstance().insertICFG2db(pag->icfg);
+        GraphDBClient::getInstance().insertCHG2db(chg);   
+        GraphDBClient::getInstance().insertCallGraph2db(pag->callGraph);
+    }
 
     // dump SVFIR
     if (Options::PAGDotGraph())
@@ -1597,7 +1624,9 @@ const Value* SVFIRBuilder::getBaseValueForExtArg(const Value* V)
 void SVFIRBuilder::handleIndCall(CallBase* cs)
 {
     const CallICFGNode* cbn = llvmModuleSet()->getCallICFGNode(cs);
-    pag->addIndirectCallsites(cbn,llvmModuleSet()->getValueNode(cs->getCalledOperand()));
+    NodeID indFunPtrId = llvmModuleSet()->getValueNode(cs->getCalledOperand());
+    const_cast<CallICFGNode*>(cbn)->setIndFunPtr(pag->getGNode(indFunPtrId));
+    pag->addIndirectCallsites(cbn,indFunPtrId);
 }
 
 void SVFIRBuilder::updateCallGraph(CallGraph* callgraph)

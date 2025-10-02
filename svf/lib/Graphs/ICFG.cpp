@@ -31,6 +31,7 @@
 #include "Graphs/CallGraph.h"
 #include "SVFIR/SVFIR.h"
 #include <Util/Options.h>
+#include "SVFIR/GraphDBClient.h"
 
 using namespace SVF;
 using namespace SVFUtil;
@@ -235,6 +236,24 @@ ICFG::~ICFG()
         delete it;
     }
     icfgNodeToSVFLoopVec.clear();
+}
+
+void ICFG::addICFGNode(ICFGNode* node)
+{
+    if (Options::ReadFromDB())
+    {
+        totalICFGNode++;
+    }
+    addGNode(node->getId(),node);
+}
+
+void ICFG::addGlobalICFGNode(GlobalICFGNode* globalICFGNode)
+{
+    if (Options::ReadFromDB())
+    {
+        this->globalBlockNode = globalICFGNode;
+    }
+    addICFGNode(globalICFGNode);
 }
 
 
