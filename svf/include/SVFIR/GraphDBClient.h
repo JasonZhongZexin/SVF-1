@@ -54,6 +54,10 @@ public:
     static GraphDBClient& getInstance()
     {
         static GraphDBClient instance;
+        if (instance.connection == nullptr)
+        {
+            instance.connection = SVF::GraphDBClient::getInstance().getConnection();
+        }
         return instance;
     }
 
@@ -116,19 +120,17 @@ public:
 
     cJSON* queryFromDB(lgraph::RpcClient* connection, const std::string& dbname, std::string queryStatement);
     /// read SVFType from DB
-    void readSVFTypesFromDB(lgraph::RpcClient* connection,
-                            const std::string& dbname, SVFIR* pag);
-    void addSVFTypeNodeFromDB(lgraph::RpcClient* connection,
-                               const std::string& dbname, SVFIR* pag);
+    void readSVFTypesFromDB(const std::string& dbname, SVFIR* pag);
+    void addSVFTypeNodeFromDB(const std::string& dbname, SVFIR* pag);
 
     /// read BasicBlockGraph from DB
-    void readBasicBlockGraphFromDB(lgraph::RpcClient* connection, const std::string& dbname);
+    void readBasicBlockGraphFromDB(const std::string& dbname);
     void readBasicBlockNodesFromDB(lgraph::RpcClient* connection, const std::string& dbname, FunObjVar* funObjVar);
     void readBasicBlockEdgesFromDB(lgraph::RpcClient* connection, const std::string& dbname, FunObjVar* funObjVar);
     void updateBasicBlockNodes(ICFG* icfg);
 
     /// read ICFGNodes & ICFGEdge from DB
-    ICFG* buildICFGFromDB(lgraph::RpcClient* connection, const std::string& dbname, SVFIR* pag);
+    ICFG* buildICFGFromDB(const std::string& dbname, SVFIR* pag);
     /// ICFGNodes
     void readICFGNodesFromDB(lgraph::RpcClient* connection, const std::string& dbname, std::string nodeType, ICFG* icfg, SVFIR* pag);
     ICFGNode* parseGlobalICFGNodeFromDBResult(const cJSON* node);
@@ -148,7 +150,7 @@ public:
     ICFGEdge* parseRetCFGEdgeFromDBResult(const cJSON* edge, SVFIR* pag, ICFG* icfg);
 
     // read CallGraph Nodes & CallGraphEdge from DB
-    CallGraph* buildCallGraphFromDB(lgraph::RpcClient* connection, const std::string& dbname, SVFIR* pag);
+    CallGraph* buildCallGraphFromDB(const std::string& dbname, SVFIR* pag);
     CallGraphNode* parseCallGraphNodeFromDB(const cJSON* node);
     CallGraphEdge* parseCallGraphEdgeFromDB(const cJSON* edge, SVFIR* pag, CallGraph* callGraph);
     void readCallGraphNodesFromDB(lgraph::RpcClient* connection, const std::string& dbname, CallGraph* callGraph);
@@ -156,14 +158,14 @@ public:
 
     /// read PAGNodes from DB
     void readPAGNodesFromDB(lgraph::RpcClient* connection, const std::string& dbname, std::string nodeType, SVFIR* pag);
-    void initialSVFPAGNodesFromDB(lgraph::RpcClient* connection, const std::string& dbname, SVFIR* pag);
+    void initialSVFPAGNodesFromDB(const std::string& dbname, SVFIR* pag);
     void updateSVFPAGNodesAttributesFromDB(lgraph::RpcClient* connection, const std::string& dbname, std::string nodeType, SVFIR* pag);
-    void updatePAGNodesFromDB(lgraph::RpcClient* connection, const std::string& dbname, SVFIR* pag);
+    void updatePAGNodesFromDB(const std::string& dbname, SVFIR* pag);
     void updateSVFValVarAtrributes(cJSON* properties, ValVar* var, SVFIR* pag);
     void updateGepValVarAttributes(cJSON* properties, GepValVar* var, SVFIR* pag);
     void updateSVFBaseObjVarAtrributes(cJSON* properties, BaseObjVar* var, SVFIR* pag);
     void updateFunObjVarAttributes(cJSON* properties, FunObjVar* var, SVFIR* pag);
-    void loadSVFPAGEdgesFromDB(lgraph::RpcClient* connection, const std::string& dbname, SVFIR* pag);
+    void loadSVFPAGEdgesFromDB(const std::string& dbname, SVFIR* pag);
     void readPAGEdgesFromDB(lgraph::RpcClient* connection, const std::string& dbname, std::string edgeType, SVFIR* pag);
     void parseAPIdxOperandPairsString(const std::string& ap_idx_operand_pairs, SVFIR* pag, AccessPath* ap);
     void parseOpVarString(std::string& op_var_node_ids, SVFIR* pag, std::vector<SVFVar*>& opVarNodes);

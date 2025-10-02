@@ -959,13 +959,13 @@ std::string GraphDBClient::getPAGNodeKindString(const SVFVar* node)
     
 }
 
-void GraphDBClient::readSVFTypesFromDB(lgraph::RpcClient* connection, const std::string& dbname, SVFIR* pag)
+void GraphDBClient::readSVFTypesFromDB(const std::string& dbname, SVFIR* pag)
 {
     SVFUtil::outs()<< "Build SVF types from DB....\n";
-    addSVFTypeNodeFromDB(connection, dbname, pag);
+    addSVFTypeNodeFromDB(dbname, pag);
 }
 
-void GraphDBClient::addSVFTypeNodeFromDB(lgraph::RpcClient* connection, const std::string& dbname, SVFIR* pag)
+void GraphDBClient::addSVFTypeNodeFromDB(const std::string& dbname, SVFIR* pag)
 {
     // parse all SVFType
     std::string queryStatement = "MATCH (node) WHERE NOT 'StInfo' IN labels(node) return node";
@@ -1304,7 +1304,7 @@ void GraphDBClient::updateCallPEs4CallCFGEdge()
     }
 }
 
-void GraphDBClient::loadSVFPAGEdgesFromDB(lgraph::RpcClient* connection, const std::string& dbname, SVFIR* pag)
+void GraphDBClient::loadSVFPAGEdgesFromDB(const std::string& dbname, SVFIR* pag)
 {
     SVFUtil::outs()<< "Loading SVF PAG edges from DB....\n";
     readPAGEdgesFromDB(connection, dbname, "AddrStmt", pag);
@@ -1834,7 +1834,7 @@ void GraphDBClient::parseOpVarString(std::string& op_var_node_ids, SVFIR* pag, s
     }
 }
 
-void GraphDBClient::initialSVFPAGNodesFromDB(lgraph::RpcClient* connection, const std::string& dbname, SVFIR* pag)
+void GraphDBClient::initialSVFPAGNodesFromDB(const std::string& dbname, SVFIR* pag)
 {
     SVFUtil::outs()<< "Initial SVF PAG nodes from DB....\n";
     readPAGNodesFromDB(connection, dbname, "ValVar", pag);
@@ -1866,7 +1866,7 @@ void GraphDBClient::initialSVFPAGNodesFromDB(lgraph::RpcClient* connection, cons
     readPAGNodesFromDB(connection, dbname, "DummyObjVar", pag);
 }
 
-void GraphDBClient::updatePAGNodesFromDB(lgraph::RpcClient* connection, const std::string& dbname, SVFIR* pag)
+void GraphDBClient::updatePAGNodesFromDB(const std::string& dbname, SVFIR* pag)
 {
     SVFUtil::outs()<< "Updating SVF PAG nodes from DB....\n";
     updateSVFPAGNodesAttributesFromDB(connection, dbname, "ValVar", pag);
@@ -2889,7 +2889,7 @@ cJSON* GraphDBClient::queryFromDB(lgraph::RpcClient* connection, const std::stri
     return root;
 }
 
-void GraphDBClient::readBasicBlockGraphFromDB(lgraph::RpcClient* connection, const std::string& dbname)
+void GraphDBClient::readBasicBlockGraphFromDB(const std::string& dbname)
 {
     SVFUtil::outs()<< "Build BasicBlockGraph from DB....\n";
     for (auto& item : id2funObjVarsMap)
@@ -3019,7 +3019,7 @@ void GraphDBClient::readBasicBlockEdgesFromDB(lgraph::RpcClient* connection, con
     }
 }
 
-ICFG* GraphDBClient::buildICFGFromDB(lgraph::RpcClient* connection, const std::string& dbname, SVFIR* pag)
+ICFG* GraphDBClient::buildICFGFromDB(const std::string& dbname, SVFIR* pag)
 {
     SVFUtil::outs()<< "Build ICFG from DB....\n";
     DBOUT(DGENERAL, outs() << pasMsg("\t Building ICFG From DB ...\n"));
@@ -3766,7 +3766,7 @@ ICFGEdge* GraphDBClient::parseRetCFGEdgeFromDBResult(const cJSON* edge, SVFIR* p
     return icfgEdge;
 }
 
-CallGraph* GraphDBClient::buildCallGraphFromDB(lgraph::RpcClient* connection, const std::string& dbname, SVFIR* pag)
+CallGraph* GraphDBClient::buildCallGraphFromDB(const std::string& dbname, SVFIR* pag)
 {
     SVFUtil::outs()<< "Build CallGraph from DB....\n";
     DBOUT(DGENERAL, outs() << pasMsg("\t Building CallGraph From DB ...\n"));

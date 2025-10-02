@@ -48,7 +48,6 @@ using namespace SVF;
 using namespace SVFUtil;
 using namespace LLVMUtil;
 
-lgraph::RpcClient* dbConnection = nullptr;
 
 /*!
  * Start building SVFIR here
@@ -68,21 +67,17 @@ SVFIR* SVFIRBuilder::build()
 
     if (Options::ReadFromDB())
     {
-        if (dbConnection == nullptr)
-        {
-            dbConnection = SVF::GraphDBClient::getInstance().getConnection();
-        }
-        GraphDBClient::getInstance().readSVFTypesFromDB(dbConnection, "SVFType", pag);
-        GraphDBClient::getInstance().initialSVFPAGNodesFromDB(dbConnection, "PAG",pag);
-        GraphDBClient::getInstance().readBasicBlockGraphFromDB(dbConnection, "BasicBlockGraph");
-        ICFG* icfg = GraphDBClient::getInstance().buildICFGFromDB(dbConnection, "ICFG", pag);
+        GraphDBClient::getInstance().readSVFTypesFromDB("SVFType", pag);
+        GraphDBClient::getInstance().initialSVFPAGNodesFromDB("PAG",pag);
+        GraphDBClient::getInstance().readBasicBlockGraphFromDB("BasicBlockGraph");
+        ICFG* icfg = GraphDBClient::getInstance().buildICFGFromDB("ICFG", pag);
         pag->icfg = icfg;
-        CallGraph* callGraph = GraphDBClient::getInstance().buildCallGraphFromDB(dbConnection,"CallGraph",pag);
+        CallGraph* callGraph = GraphDBClient::getInstance().buildCallGraphFromDB("CallGraph",pag);
         CHGraph* chg = new CHGraph();
         pag->setCHG(chg);
         pag->callGraph = callGraph;
-        GraphDBClient::getInstance().updatePAGNodesFromDB(dbConnection, "PAG", pag);
-        GraphDBClient::getInstance().loadSVFPAGEdgesFromDB(dbConnection, "PAG",pag);
+        GraphDBClient::getInstance().updatePAGNodesFromDB("PAG", pag);
+        GraphDBClient::getInstance().loadSVFPAGEdgesFromDB("PAG",pag);
         GraphDBClient::getInstance().parseSVFStmtsForICFGNodeFromDBResult(pag);
         return pag;
     }
